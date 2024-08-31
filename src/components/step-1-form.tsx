@@ -14,16 +14,7 @@ import { useMutation } from '@tanstack/react-query';
 import { createStep1Registration } from '@/app/(auth)/sign-up/action';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-
-export const formSchema = z.object({
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  role: z.enum(['patient', 'doctor'], {
-    errorMap: () => ({ message: 'Please select a valid role' }),
-  }),
-});
+import { formSchema } from '@/schemas/sign-in-schema';
 
 export type FormData = z.infer<typeof formSchema>;
 

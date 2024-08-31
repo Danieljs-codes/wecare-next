@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS `patient_registrations_email_unique`;

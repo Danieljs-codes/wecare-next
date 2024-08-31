@@ -2,10 +2,11 @@
 
 import { FormData } from '@components/step-1-form';
 import { db } from '@server/db';
-import { patientRegistrations } from '@server/db/schema';
+import { patientRegistrations, users } from '@server/db/schema';
 import { eq } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 import { nanoid } from 'nanoid';
+import { formSchema } from '@/schemas/sign-in-schema';
 
 const COOKIE_NAME = 'registration';
 
@@ -29,29 +30,56 @@ export const getPatientRegistrationDetails = async () => {
 };
 
 export const createStep1Registration = async (data: FormData) => {
-  let registrationId = cookies().get(COOKIE_NAME)?.value
+  const formData = formSchema.safeParse(data);
 
-  if (!registrationId) {
-    registrationId = nanoid()
-    cookies().set(COOKIE_NAME, registrationId, { httpOnly: true, secure: true })
+  if (!formData.success) {
+    return {
+      success: false as const,
+      message: 'Invalid form data',
+    };
   }
 
+  const { email, password, firstName, lastName, role } = formData.data;
+
+  let registrationId = cookies().get(COOKIE_NAME)?.value;
+
+  if (!registrationId) {
+    registrationId = nanoid();
+    cookies().set(COOKIE_NAME, registrationId, {
+      httpOnly: true,
+      secure: true,
+    });
+  }
+
+  // Validate if user with email already exists
+  const existingUser = await db.query.users.findFirst({
+    where: eq(users.email, email),
+  });
+
+  if (existingUser) {
+    return {
+      success: false as const,
+      message: 'An account with this email already exists',
+    };
+  }
   const result = await db
     .insert(patientRegistrations)
     .values({
       id: registrationId,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      password: data.password,
+      firstName,
+      lastName,
+      email,
+      password,
+      role,
     })
     .onConflictDoUpdate({
       target: patientRegistrations.id,
       set: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
+        firstName,
+        lastName,
+        email,
+        password,
+        role,
         updatedAt: new Date().toISOString(),
       },
     })

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { StepIndicator } from './step-indicator';
 import { getPatientRegistrationDetails } from '@/app/(auth)/sign-up/action';
-import { Step1Form, FormData } from '@components/step-1-form';
+import { Step1Form } from '@components/step-1-form';
 import { Logo } from '@components/logo';
 
 function SignUpForm({
@@ -14,6 +14,8 @@ function SignUpForm({
   if (step === 2 && !patientRegDetails) {
     redirect('/sign-up?step=1');
   }
+
+  console.log(patientRegDetails?.role);
 
   const initialFormData = patientRegDetails
     ? {
@@ -34,8 +36,8 @@ function SignUpForm({
         <StepIndicator
           currentStep={step}
           steps={[
-            { step: 1, title: 'Personal Info', path: '/sign-up/1' },
-            { step: 2, title: 'Additional Info', path: '/sign-up/2' },
+            { step: 1, title: 'Personal Info', path: '/sign-up?step=1' },
+            { step: 2, title: 'Additional Info', path: '/sign-up/?step=2' },
           ]}
         />
         <div className="mt-6">
