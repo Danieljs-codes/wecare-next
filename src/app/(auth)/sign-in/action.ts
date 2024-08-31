@@ -15,7 +15,7 @@ export const signIn = async (formData: SignInFormData) => {
   if (!result.success) {
     return {
       errors: ['Invalid input'],
-      data: null
+      data: null,
     };
   }
 
@@ -28,7 +28,7 @@ export const signIn = async (formData: SignInFormData) => {
   if (!user) {
     return {
       errors: ['User not found'],
-      data: null
+      data: null,
     };
   }
 
@@ -36,16 +36,17 @@ export const signIn = async (formData: SignInFormData) => {
 
   if (!passwordMatch) {
     return {
-      errors: ['Invalid password'], 
-      data: null
+      errors: ['Invalid password'],
+      data: null,
     };
   }
 
   const session = await createSession(user.id);
 
- return {
-    errors: null, 
+  return {
+    errors: null,
     data: session,
-    message: 'Sign in successful'
- }
+    message: 'Sign in successful',
+    role: user.role,
+  };
 };

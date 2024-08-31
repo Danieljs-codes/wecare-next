@@ -193,5 +193,6 @@ export const createStep2Registration = async (data: Step2DoctorFormData) => {
   return {
     success: true as const,
     message: 'Registration created successfully',
+    role: registration.role,
   };
 };

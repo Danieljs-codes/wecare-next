@@ -48,7 +48,9 @@ export const Step2DoctorForm = () => {
 
     onSuccess: data => {
       toast.success(data.message);
-      router.replace('/dashboard');
+      router.replace(
+        data.role === 'doctor' ? '/doctor/dashboard' : '/patient/dashboard'
+      );
     },
   });
 
@@ -80,7 +82,11 @@ export const Step2DoctorForm = () => {
                 )}
               >
                 {item => (
-                  <Select.Option id={item.id} textValue={item.name}>
+                  <Select.Option
+                    className={'text-sm'}
+                    id={item.id}
+                    textValue={item.name}
+                  >
                     {item.name}
                   </Select.Option>
                 )}

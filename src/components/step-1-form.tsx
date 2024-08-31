@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { formSchema } from '@/schemas/sign-in-schema';
 import { Tooltip } from '@ui/tooltip';
 import { IconEye, IconEyeOff } from 'justd-icons';
+import { Note } from '@ui/note';
 
 export type FormData = z.infer<typeof formSchema>;
 
@@ -67,6 +68,7 @@ export function Step1Form({ initialData }: { initialData?: FormData }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {error ? <Note intent="danger">{error}</Note> : null}
       <Controller
         name="firstName"
         control={control}
