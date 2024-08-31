@@ -81,6 +81,8 @@ const Select = forwardRef(
   },
 );
 
+Select.displayName = 'Select';
+
 interface ListProps<T extends object> {
   items?: Iterable<T>;
   placement?: Placement;

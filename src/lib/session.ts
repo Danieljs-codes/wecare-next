@@ -4,7 +4,6 @@ import { db } from '@/server/db';
 import { sessions } from '@/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
-import { users } from '@/server/db/schema';
 
 const SESSION_COOKIE_NAME = 'sessionId';
 
