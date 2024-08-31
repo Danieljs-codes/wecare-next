@@ -3,6 +3,7 @@ import { StepIndicator } from './step-indicator';
 import { getPatientRegistrationDetails } from '@/app/(auth)/sign-up/action';
 import { Step1Form } from '@components/step-1-form';
 import { Logo } from '@components/logo';
+import { Step2DoctorForm } from './step-2-doctor-form';
 
 function SignUpForm({
   patientRegDetails,
@@ -43,7 +44,7 @@ function SignUpForm({
         <div className="mt-6">
           {step === 1 && <Step1Form initialData={initialFormData} />}
           {step === 2 && patientRegDetails?.role === 'doctor' && (
-            <p>{patientRegDetails.role}</p>
+            <Step2DoctorForm />
           )}
           {step === 2 && patientRegDetails?.role === 'patient' && (
             <p>{patientRegDetails.role}</p>

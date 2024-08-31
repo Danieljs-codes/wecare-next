@@ -15,10 +15,13 @@ import { createStep1Registration } from '@/app/(auth)/sign-up/action';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { formSchema } from '@/schemas/sign-in-schema';
+import { Tooltip } from '@ui/tooltip';
+import { IconEye, IconEyeOff } from 'justd-icons';
 
 export type FormData = z.infer<typeof formSchema>;
 
 export function Step1Form({ initialData }: { initialData?: FormData }) {
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -102,21 +105,33 @@ export function Step1Form({ initialData }: { initialData?: FormData }) {
           />
         )}
       />
-
       <Controller
         name="password"
         control={control}
         render={({ field }) => (
           <TextField
             label="Password"
-            type="password"
+            type={passwordVisible ? 'text' : 'password'}
             isInvalid={!!errors.password}
             errorMessage={errors.password?.message}
+            suffix={
+              <Tooltip delay={0}>
+                <Button
+                  size="square-petite"
+                  onPress={() => setPasswordVisible(!passwordVisible)}
+                  appearance="outline"
+                >
+                  {passwordVisible ? <IconEyeOff /> : <IconEye />}
+                </Button>
+                <Tooltip.Content className="text-[11px]">
+                  {passwordVisible ? 'Hide password' : 'Show password'}
+                </Tooltip.Content>
+              </Tooltip>
+            }
             {...field}
           />
         )}
       />
-
       <Controller
         name="role"
         control={control}
@@ -125,6 +140,7 @@ export function Step1Form({ initialData }: { initialData?: FormData }) {
             label="Role"
             isInvalid={!!errors.role}
             errorMessage={errors.role?.message}
+            defaultSelectedKey={initialData?.role}
             onSelectionChange={val => field.onChange(val)}
             {...field}
           >

@@ -40,12 +40,13 @@ export const doctors = sqliteTable(
     createdAt: text('createdAt')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
-    startTime: text('startTime').notNull(), // Store as 'HH:MM:SS'
-    endTime: text('endTime').notNull(), // Store as 'HH:MM:SS'
+    startTime: text('startTime').notNull(), // Store in UTC as ISO 8601
+    endTime: text('endTime').notNull(), // Store in UTC as ISO 8601
     updatedAt: text('updatedAt')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
     timezone: text('timezone').notNull(), // e.g., 'Europe/Paris'
+    bio: text('bio').notNull(),
   },
   doctors => ({
     doctors_user_fkey: foreignKey({

@@ -3,9 +3,6 @@ import { getPatientRegistrationDetails } from './action';
 
 export const runtime = 'edge';
 
-// Add this line to disable caching for this route
-export const dynamic = 'force-dynamic';
-
 const SignUp = async ({
   searchParams,
 }: {
@@ -16,7 +13,7 @@ const SignUp = async ({
 
   return (
     <div>
-      <SignUpForm key={step} patientRegDetails={userDetails} step={step} />
+      <SignUpForm patientRegDetails={userDetails} step={step} />
     </div>
   );
 };

@@ -43,6 +43,13 @@
       "when": 1725117462796,
       "tag": "0005_slim_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1725124464447,
+      "tag": "0006_whole_glorian",
+      "breakpoints": true
     }
   ]
 }

@@ -1,29 +1,65 @@
-import { doctorStep2Schema } from '@/schemas/sign-up-schema';
+'use client';
+
+import { createStep2Registration } from '@/app/(auth)/sign-up/action';
+import {
+  doctorStep2Schema,
+  Step2DoctorFormData,
+} from '@/schemas/sign-up-schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Time } from '@internationalized/date';
 import { getUserTimezone } from '@lib/utils';
+import { useMutation } from '@tanstack/react-query';
 import { NumberField } from '@ui/number-field';
 import { Select } from '@ui/select';
+import { SubmitButton } from '@ui/submit-button';
 import { Textarea } from '@ui/textarea';
 import { TimeField } from '@ui/time-field';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { toast } from 'sonner';
 
 export const Step2DoctorForm = () => {
-  const { handleSubmit, control } = useForm<z.infer<typeof doctorStep2Schema>>({
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const { handleSubmit, control } = useForm<Step2DoctorFormData>({
     resolver: zodResolver(doctorStep2Schema),
     defaultValues: {
       specialization: undefined,
       yearsOfExperience: undefined,
       availableHours: { startTime: undefined, endTime: undefined },
       timezone: getUserTimezone(),
+      bio: '',
     },
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
   });
 
+  const { mutate, status } = useMutation({
+    mutationKey: ['signUpStep2'],
+    mutationFn: async (data: Step2DoctorFormData) => {
+      const res = await createStep2Registration(data);
+
+      if (!res.success) {
+        setError(res.message);
+        throw new Error(res.message);
+      }
+
+      return res;
+    },
+
+    onSuccess: data => {
+      toast.success(data.message);
+      router.replace('/dashboard');
+    },
+  });
+
+  const isLoading = status === 'pending';
+
+  const onSubmit = (data: Step2DoctorFormData) => {
+    mutate(data);
+  };
+
   return (
-    <form>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-4">
         <Controller
           name="specialization"
@@ -113,8 +149,21 @@ export const Step2DoctorForm = () => {
             )}
           />
         </div>
-        <Textarea className="text-sm" label="Bio" />
+        <Controller
+          name="bio"
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <Textarea
+              className="text-sm"
+              label="Bio"
+              {...field}
+              isInvalid={!!error}
+              errorMessage={error?.message}
+            />
+          )}
+        />
       </div>
+      <SubmitButton isLoading={isLoading}>Sign up</SubmitButton>
     </form>
   );
 };

@@ -1,0 +1,1 @@
+ALTER TABLE `doctors` ADD `bio` text NOT NULL;
