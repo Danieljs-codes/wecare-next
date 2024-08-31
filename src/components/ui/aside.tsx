@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import { IconHamburger } from "justd-icons"
+import { IconBarsTwo } from 'justd-icons';
 import {
   Collection,
   Header,
@@ -11,42 +11,42 @@ import {
   type ListBoxItemProps,
   type ListBoxProps,
   Section,
-  type SectionProps
-} from "react-aria-components"
-import { tv } from "tailwind-variants"
+  type SectionProps,
+} from 'react-aria-components';
+import { tv } from 'tailwind-variants';
 
-import { Button } from "./button"
-import { cr, useMediaQuery } from "./primitive"
-import { Sheet } from "./sheet"
+import { Button } from './button';
+import { cr, useMediaQuery } from './primitive';
+import { Sheet } from './sheet';
 
 const aside = tv({
   slots: {
-    root: "fixed inset-y-0 bg-tertiary left-0 w-[17rem] max-lg:hidden",
-    content: "flex h-full min-h-0 flex-col",
-    body: "flex flex-col overflow-y-auto p-4 [&>section+section]:mt-8",
-    section: "flex flex-col gap-y-0.5",
-    header: "flex flex-col border-b p-4 [&>section+section]:mt-2.5",
-    footer: "flex flex-col mt-auto border-t p-4 [&>section+section]:mt-2.5",
-    responsive: "flex gap-x-0.5"
-  }
-})
+    root: 'fixed inset-y-0 bg-tertiary left-0 w-[17rem] max-lg:hidden',
+    content: 'flex h-full min-h-0 flex-col',
+    body: 'flex flex-col overflow-y-auto p-4 [&>section+section]:mt-8',
+    section: 'flex flex-col gap-y-0.5',
+    header: 'flex flex-col border-b p-4 [&>section+section]:mt-2.5',
+    footer: 'flex flex-col mt-auto border-t p-4 [&>section+section]:mt-2.5',
+    responsive: 'flex gap-x-0.5',
+  },
+});
 
-const { root, body, content, section, header, footer, responsive } = aside()
+const { root, body, content, section, header, footer, responsive } = aside();
 
 interface LayoutProps extends React.HTMLProps<HTMLDivElement> {
-  children: React.ReactNode
-  aside: React.ReactNode
-  navbar: React.ReactNode
-  side?: "left" | "right"
-  isStack?: boolean
-  closeButton?: boolean
-  isBlurred?: boolean
-  "aria-label"?: string
+  children: React.ReactNode;
+  aside: React.ReactNode;
+  navbar: React.ReactNode;
+  side?: 'left' | 'right';
+  isStack?: boolean;
+  closeButton?: boolean;
+  isBlurred?: boolean;
+  'aria-label'?: string;
 }
 
 const Layout = ({
   isStack = true,
-  side = "left",
+  side = 'left',
   isBlurred = false,
   closeButton = true,
   aside,
@@ -54,18 +54,18 @@ const Layout = ({
   children,
   ...props
 }: LayoutProps) => {
-  const [openAside, setOpenAside] = React.useState(false)
-  const isDesktop = useMediaQuery("(min-width: 1024px)")
+  const [openAside, setOpenAside] = React.useState(false);
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   return (
     <div className="relative isolate flex min-h-svh w-full max-lg:flex-col">
       <Aside>{aside}</Aside>
       {!isDesktop && (
         <Sheet.Content
-          aria-label={props["aria-label"] ?? "Main navigation"}
+          aria-label={props['aria-label'] ?? 'Main navigation'}
           {...{ closeButton, isStack, side, isBlurred }}
           isOpen={openAside}
           onOpenChange={() => setOpenAside(false)}
-          classNames={{ content: "[&_[role=dialog]]:p-0" }}
+          classNames={{ content: '[&_[role=dialog]]:p-0' }}
         >
           {aside}
         </Sheet.Content>
@@ -80,7 +80,7 @@ const Layout = ({
             onPress={() => setOpenAside(true)}
             aria-label="Open navigation"
           >
-            <IconHamburger />
+            <IconBarsTwo />
           </Button>
         </div>
         <div>{navbar}</div>
@@ -92,34 +92,48 @@ const Layout = ({
         </div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-interface AsideProps extends Omit<React.HTMLProps<HTMLDivElement>, "className"> {
-  children: React.ReactNode
+interface AsideProps
+  extends Omit<React.HTMLProps<HTMLDivElement>, 'className'> {
+  children: React.ReactNode;
   classNames?: {
-    content?: string
-    root?: string
-  }
+    content?: string;
+    root?: string;
+  };
 }
 
 const Aside = ({ classNames, ...props }: AsideProps) => (
   <div {...props} className={root({ className: classNames?.root })} {...props}>
-    <div className={content({ className: classNames?.content })}>{props.children}</div>
+    <div className={content({ className: classNames?.content })}>
+      {props.children}
+    </div>
   </div>
-)
+);
 
-const Content = <T extends object>({ children, className, ...props }: ListBoxProps<T>) => (
-  <ListBox aria-label="Main navigation" {...props} className={cr(className, body)}>
+const Content = <T extends object>({
+  children,
+  className,
+  ...props
+}: ListBoxProps<T>) => (
+  <ListBox
+    aria-label="Main navigation"
+    {...props}
+    className={cr(className, body)}
+  >
     {children}
   </ListBox>
-)
+);
 
 interface AsideSectionProps<T> extends SectionProps<T> {
-  title?: string
+  title?: string;
 }
 
-const AsideSection = <T extends object>({ className, ...props }: AsideSectionProps<T>) => {
+const AsideSection = <T extends object>({
+  className,
+  ...props
+}: AsideSectionProps<T>) => {
   return (
     <Section className={section({ className })}>
       {props.title && (
@@ -129,37 +143,37 @@ const AsideSection = <T extends object>({ className, ...props }: AsideSectionPro
       )}
       <Collection items={props.items}>{props.children}</Collection>
     </Section>
-  )
-}
+  );
+};
 
 const itemStyles = tv({
-  base: "flex items-center [&_[data-slot=icon]]:text-muted-fg [&_[data-slot=icon]]:size-4 [&_[data-slot=icon]]:-mx-0.5 relative rounded-lg gap-x-4 px-3 py-2 lg:text-sm leading-6",
+  base: 'flex items-center [&_[data-slot=icon]]:text-muted-fg [&_[data-slot=icon]]:size-4 [&_[data-slot=icon]]:-mx-0.5 relative rounded-lg gap-x-4 px-3 py-2 lg:text-sm leading-6',
   variants: {
     isFocused: {
-      true: "outline-none"
+      true: 'outline-none',
     },
     isFocusVisible: {
-      true: "bg-secondary [&:focus-visible_[slot=label]]:text-accent-fg [&:focus-visible_[slot=description]]:text-accent-fg/70 text-secondary-fg"
+      true: 'bg-secondary [&:focus-visible_[slot=label]]:text-accent-fg [&:focus-visible_[slot=description]]:text-accent-fg/70 text-secondary-fg',
     },
     isHovered: {
-      true: "bg-secondary [&:focus-visible_[slot=label]]:text-accent-fg [&:focus-visible_[slot=description]]:text-accent-fg/70 text-secondary-fg [&_.text-muted-fg]:text-secondary-fg/80"
+      true: 'bg-secondary [&:focus-visible_[slot=label]]:text-accent-fg [&:focus-visible_[slot=description]]:text-accent-fg/70 text-secondary-fg [&_.text-muted-fg]:text-secondary-fg/80',
     },
     isCurrent: {
       true: [
-        "[&_[data-slot=icon]]:text-accent-fg [&_[data-slot=label]]:text-accent-fg [&_.text-muted-fg]:text-accent-fg/80 bg-accent text-accent-fg",
-        "[&_.bdx]:bg-accent-fg/20 [&_.bdx]:ring-accent-fg/30"
-      ]
+        '[&_[data-slot=icon]]:text-accent-fg [&_[data-slot=label]]:text-accent-fg [&_.text-muted-fg]:text-accent-fg/80 bg-accent text-accent-fg',
+        '[&_.bdx]:bg-accent-fg/20 [&_.bdx]:ring-accent-fg/30',
+      ],
     },
     isDisabled: {
-      true: "opacity-70 cursor-default text-muted-fg"
-    }
-  }
-})
+      true: 'opacity-70 cursor-default text-muted-fg',
+    },
+  },
+});
 
 interface ItemProps<T> extends ListBoxItemProps<T> {
-  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>
-  badge?: string | number | undefined
-  isCurrent?: boolean
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  badge?: string | number | undefined;
+  isCurrent?: boolean;
 }
 
 const Item = <T extends object>({
@@ -169,7 +183,7 @@ const Item = <T extends object>({
   icon: Icon,
   ...props
 }: ItemProps<T>) => {
-  const textValue = typeof children === "string" ? children : undefined
+  const textValue = typeof children === 'string' ? children : undefined;
 
   return (
     <ListBoxItem
@@ -178,16 +192,16 @@ const Item = <T extends object>({
         itemStyles({
           ...renderProps,
           isCurrent,
-          className
+          className,
         })
       )}
       {...props}
     >
-      {(values) => (
+      {values => (
         <div className="flex items-center gap-2">
           <>
             {Icon && <Icon className="shrink-0 size-4" />}
-            {typeof children === "function" ? children(values) : children}
+            {typeof children === 'function' ? children(values) : children}
             {props.badge && (
               <div className="bdx h-[1.30rem] px-1 rounded-md text-muted-fg text-xs font-medium ring-1 ring-fg/20 grid place-content-center w-auto inset-y-1/2 -translate-y-1/2 absolute right-1.5 bg-fg/[0.02] dark:bg-fg/10">
                 {props.badge}
@@ -197,26 +211,35 @@ const Item = <T extends object>({
         </div>
       )}
     </ListBoxItem>
-  )
-}
+  );
+};
 
-const AsideHeader = ({ className, ...props }: React.HtmlHTMLAttributes<HTMLDivElement>) => (
+const AsideHeader = ({
+  className,
+  ...props
+}: React.HtmlHTMLAttributes<HTMLDivElement>) => (
   <div {...props} className={header({ className })} {...props} />
-)
-const Footer = ({ className, ...props }: React.HtmlHTMLAttributes<HTMLDivElement>) => (
+);
+const Footer = ({
+  className,
+  ...props
+}: React.HtmlHTMLAttributes<HTMLDivElement>) => (
   <div {...props} className={footer({ className })} {...props} />
-)
+);
 
-const Responsive = ({ className, ...props }: React.HtmlHTMLAttributes<HTMLDivElement>) => (
+const Responsive = ({
+  className,
+  ...props
+}: React.HtmlHTMLAttributes<HTMLDivElement>) => (
   <div {...props} className={responsive({ className })} {...props} />
-)
+);
 
-Aside.Responsive = Responsive
-Aside.Footer = Footer
-Aside.Header = AsideHeader
-Aside.Content = Content
-Aside.Section = AsideSection
-Aside.Item = Item
-Aside.Layout = Layout
+Aside.Responsive = Responsive;
+Aside.Footer = Footer;
+Aside.Header = AsideHeader;
+Aside.Content = Content;
+Aside.Section = AsideSection;
+Aside.Item = Item;
+Aside.Layout = Layout;
 
-export { Aside }
+export { Aside };

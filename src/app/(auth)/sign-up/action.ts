@@ -14,6 +14,7 @@ import {
 } from '@/schemas/sign-up-schema';
 import { DateTime } from 'luxon';
 import { createSession } from '@lib/session';
+import { hashPassword } from '@lib/password';
 
 const COOKIE_NAME = 'registration';
 
@@ -161,11 +162,12 @@ export const createStep2Registration = async (data: Step2DoctorFormData) => {
   }
 
   const userId = nanoid();
+  const hashedPassword = await hashPassword(registration.password);
   const user = await db.batch([
     db.insert(users).values({
       id: userId,
       email: registration.email,
-      password: registration.password,
+      password: hashedPassword,
       firstName: registration.firstName,
       lastName: registration.lastName,
       role: registration.role,
