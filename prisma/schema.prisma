@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters", "relationJoins"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model sessions {
+  id        String   @id @unique
+  userId    String
+  user      users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model users {
+  id        String   @id @unique
+  fullName  String
+  role      String   @default("patient")
+  email     String   @unique
+  password  String
+  avatar    String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor   doctors?
+  patient  patients?
+  sessions sessions[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model doctors {
+  id                String   @id @unique
+  userId            String   @unique
+  user              users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization    String
+  yearsOfExperience Int
+  startTime         DateTime
+  endTime           DateTime
+  timezone          String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  appointments        appointments[]
+  surgeries           surgeries[]
+  patientDoctors      patientDoctors[]
+  doctorNotifications doctorNotifications[]
+
+  @@index([specialization])
+  @@index([startTime, endTime])
+  @@map("doctors")
+}
+
+model patients {
+  id           String   @id @unique
+  userId       String   @unique
+  user         users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bloodType    String
+  gender       String
+  genoType     String
+  birthDate    DateTime
+  occupation   String
+  mobileNumber String
+  address      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  appointments         appointments[]
+  surgeries            surgeries[]
+  patientDoctors       patientDoctors[]
+  patientNotifications patientNotifications[]
+
+  @@index([bloodType])
+  @@index([gender])
+  @@map("patients")
+}
+
+model appointments {
+  id                   String                 @id @unique
+  patientId            String
+  patient              patients               @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId             String
+  doctor               doctors                @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  appointmentStart     DateTime
+  appointmentEnd       DateTime
+  status               String                 @default("pending")
+  roomName             String?
+  doctorToken          String?
+  patientToken         String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  patientNotifications patientNotifications[]
+  doctorNotifications  doctorNotifications[]
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([appointmentStart, appointmentEnd])
+  @@map("appointments")
+}
+
+model surgeries {
+  id          String   @id @unique
+  patientId   String
+  patient     patients @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId    String
+  doctor      doctors  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  surgeryTime DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([surgeryTime])
+  @@map("surgeries")
+}
+
+model patientNotifications {
+  id                   String        @id @unique
+  patientId            String
+  patient              patients      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  message              String
+  isRead               Boolean       @default(false)
+  type                 String
+  appointmentId        String?
+  appointment          appointments? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointmentStartTime DateTime?
+  appointmentEndTime   DateTime?
+  createdAt            DateTime      @default(now())
+
+  @@index([patientId])
+  @@index([appointmentId])
+  @@index([isRead])
+  @@index([type])
+  @@map("patient_notifications")
+}
+
+model doctorNotifications {
+  id                   String        @id @unique
+  doctorId             String
+  doctor               doctors       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  message              String
+  isRead               Boolean       @default(false)
+  type                 String
+  appointmentId        String?
+  appointment          appointments? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointmentStartTime DateTime?
+  appointmentEndTime   DateTime?
+  createdAt            DateTime      @default(now())
+
+  @@index([doctorId])
+  @@index([appointmentId])
+  @@index([isRead])
+  @@index([type])
+  @@map("doctor_notifications")
+}
+
+model patientDoctors {
+  id        String   @id @unique
+  patientId String
+  patient   patients @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId  String
+  doctor    doctors  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([patientId, doctorId])
+  @@index([patientId])
+  @@index([doctorId])
+  @@map("patient_doctors")
+}
