@@ -16,12 +16,14 @@ import {
   IconSearch,
   IconSettings,
   IconSupport,
+  IconMoon,
 } from 'justd-icons';
 import { ReactNode } from 'react';
 import { Avatar } from '@ui/avatar';
 import { Link } from '@ui/link';
 import { Logo } from './logo';
 import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 
 const asideItems = [
   { icon: IconDashboard, href: '/doctor/dashboard', label: 'Overview' },
@@ -40,6 +42,7 @@ const menuItems = [
   { icon: IconCirclePerson, label: 'Profile' },
   { icon: IconSupport, label: 'Contact Support' },
   { type: 'separator' },
+  { icon: IconMoon, label: 'Toggle theme', onAction: () => {} }, // Placeholder for theme toggle
   { icon: IconLogout, label: 'Log out' },
   { icon: IconFolderDelete, label: 'Delete account', intent: 'danger' },
 ];
@@ -52,6 +55,15 @@ interface DoctorLayoutProps {
 
 export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
   const pathname = usePathname();
+  const { setTheme, theme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const updatedMenuItems = menuItems.map(item =>
+    item.label === 'Toggle theme' ? { ...item, onAction: toggleTheme } : item
+  );
 
   return (
     <div>
@@ -80,7 +92,7 @@ export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
                 <Avatar size="medium" src={avatar} />
               </Button>
               <Menu.Content placement="top" className="min-w-[--trigger-width]">
-                {menuItems.map((item, index) =>
+                {updatedMenuItems.map((item, index) =>
                   item.type === 'separator' ? (
                     <Menu.Separator key={`separator-${index}`} />
                   ) : (
@@ -89,6 +101,7 @@ export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
                       key={item.label}
                       href={item.href}
                       isDanger={item.intent === 'danger'}
+                      onAction={item.onAction}
                     >
                       {item.icon && <item.icon />}
                       {item.label}
@@ -140,7 +153,7 @@ export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
                   placement="top"
                   className="min-w-[--trigger-width]"
                 >
-                  {menuItems.map((item, index) =>
+                  {updatedMenuItems.map((item, index) =>
                     item.type === 'separator' ? (
                       <Menu.Separator key={`separator-${index}`} />
                     ) : (
@@ -149,11 +162,7 @@ export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
                         className="text-sm"
                         href={item.href}
                         isDanger={item.intent === 'danger'}
-                        onAction={
-                          !item.href
-                            ? () => console.log(`Action: ${item.label}`)
-                            : undefined
-                        }
+                        onAction={item.onAction}
                       >
                         {item.icon && <item.icon />}
                         {item.label}
