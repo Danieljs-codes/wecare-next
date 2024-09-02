@@ -14,8 +14,6 @@ interface EmptyStateProps {
   onClear?: () => void;
 }
 
-console.log(icon);
-
 const EmptyState: React.FC<EmptyStateProps> = ({
   title,
   description,

@@ -28,7 +28,6 @@ export async function TotalPatients({
     newPatients: 0,
   };
 
-  console.log(result[0]);
 
   const percentageIncrease =
     totalPatients > 0 ? (newPatients / (totalPatients - newPatients)) * 100 : 0;

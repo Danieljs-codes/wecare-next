@@ -11,6 +11,7 @@ import { PatientsTable } from '@/components/patients-table';
 import { getUserAndDoctor } from '@lib/utils';
 import { fetchDoctorAppointments } from '@lib/server';
 import AppointmentsToday from '@components/appointments-today-table';
+import { seedDB } from '../action';
 
 export const runtime = 'edge';
 
@@ -49,6 +50,8 @@ async function Dashboard() {
     new Date(),
     5
   );
+
+  console.log(appointmentsToday.length, doctorPatients.length);
 
   return (
     <div className="space-y-6 lg:space-y-10">

@@ -10,8 +10,6 @@ import { eq } from 'drizzle-orm';
 export const signIn = async (formData: SignInFormData) => {
   const result = signInSchema.safeParse(formData);
 
-  console.log('result', result);
-
   if (!result.success) {
     return {
       errors: ['Invalid input'],

@@ -26,7 +26,6 @@ export function TotalVisitorsCard({
   days,
 }: TotalVisitorsCardProps) {
   const { theme } = useTheme();
-  console.log(Math.abs(percentageChange).toFixed(2), percentageChange);
 
   return (
     <Card className="p-[1.125rem] flex flex-col">

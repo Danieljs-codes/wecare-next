@@ -34,7 +34,7 @@ export function PatientsTable({ patients }: PatientsTableProps) {
   return (
     <div className="pt-2">
       <Card.Header
-        title="Appointments"
+        title="Patients"
         description="A list of 5 patients you have attended to. To see more, go to the patients page."
         withoutPadding
       />
@@ -63,8 +63,8 @@ export function PatientsTable({ patients }: PatientsTableProps) {
             )}
             items={patients}
           >
-            {(item: PatientData) => (
-              <Table.Row>
+            {item => (
+              <Table.Row id={item.patientId}>
                 <Table.Cell>{item.patientId.substring(0, 5)}</Table.Cell>
                 <Table.Cell>{`${item.patientName} ${item.patientLastName}`}</Table.Cell>
                 <Table.Cell>{item.email}</Table.Cell>

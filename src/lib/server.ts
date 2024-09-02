@@ -78,12 +78,8 @@ export const fetchDoctorAppointments = async (
         lt(appointments.appointmentStart, endOfDay.toISOString())
       )
     )
-    .orderBy(appointments.appointmentStart);
-
-  if (limit !== undefined) {
-    // @ts-ignore
-    query = query.limit(limit);
-  }
+    .orderBy(appointments.appointmentStart)
+    .limit(5);
 
   const result = await query;
 

@@ -16,8 +16,6 @@ function SignUpForm({
     redirect('/sign-up?step=1');
   }
 
-  console.log(patientRegDetails?.role);
-
   const initialFormData = patientRegDetails
     ? {
         firstName: patientRegDetails.firstName,

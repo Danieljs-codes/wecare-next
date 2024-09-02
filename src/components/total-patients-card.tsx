@@ -26,7 +26,6 @@ export function TotalPatientCard({
 }: TotalPatientCardProps) {
   const { theme } = useTheme();
 
-  console.log(totalPatients, newPatients);
 
   return (
     <Card className="p-[1.125rem] flex flex-col">

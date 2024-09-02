@@ -19,8 +19,6 @@ import { hashPassword } from '@lib/password';
 const COOKIE_NAME = 'registration';
 
 export const getPatientRegistrationDetails = async () => {
-  console.log('Got Here');
-
   const registrationCookie = cookies().get(COOKIE_NAME);
   if (!registrationCookie) {
     return null;

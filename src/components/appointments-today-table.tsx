@@ -32,7 +32,13 @@ export function AppointmentsToday({ appointments }: AppointmentsTodayProps) {
     <div className="pt-2">
       <Card.Header
         title="Appointments"
-        description="A list of 5 appointments you have today. To see more, go to the appointments page."
+        // @ts-expect-error - It expects a string but the underlying element used the `Description` from RAC accepts JSX
+        description={
+          <p className="text-">
+            A list of 5 appointments you have today. To see more, go to the
+            appointments page.
+          </p>
+        }
         withoutPadding
       />
       <Card>
@@ -57,8 +63,8 @@ export function AppointmentsToday({ appointments }: AppointmentsTodayProps) {
             )}
             items={appointments}
           >
-            {(item: AppointmentData) => (
-              <Table.Row>
+            {item => (
+              <Table.Row id={item.appointmentId}>
                 <Table.Cell>{item.appointmentId.substring(0, 5)}</Table.Cell>
                 <Table.Cell>{formatTime(item.appointmentStart)}</Table.Cell>
                 <Table.Cell>{formatTime(item.appointmentEnd)}</Table.Cell>
