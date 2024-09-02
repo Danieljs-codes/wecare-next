@@ -96,8 +96,8 @@ export const appointments = sqliteTable(
     id: text('id').notNull().primaryKey(),
     patientId: text('patientId').notNull(),
     doctorId: text('doctorId').notNull(),
-    appointmentStart: text('appointmentStart').notNull(), // Store as UTC ISO 8601: '2023-05-18T14:30:00Z'
-    appointmentEnd: text('appointmentEnd').notNull(), // Store as UTC ISO 8601: '2023-05-18T15:30:00Z'
+    appointmentStart: text('appointmentStart').notNull(), // Stored as UTC ISO 8601: '2023-05-18T14:30:00Z'
+    appointmentEnd: text('appointmentEnd').notNull(), // Stored as UTC ISO 8601: '2023-05-18T15:30:00Z'
     status: text('status').notNull().default('pending'),
     roomName: text('roomName'),
     doctorToken: text('doctorToken'),
@@ -298,7 +298,7 @@ export const sessions = sqliteTable(
     })
       .onDelete('cascade')
       .onUpdate('cascade'),
-    sessions_userId_idx: uniqueIndex('sessions_userId_idx').on(sessions.userId),
+    sessions_userId_idx: index('sessions_userId_idx').on(sessions.userId),
   })
 );
 

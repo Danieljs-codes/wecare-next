@@ -1,6 +1,5 @@
 'use client';
 
-import { ThemeProvider } from './theme-provider';
 import { useRouter } from 'next/navigation';
 import { RouterProvider } from 'react-aria-components';
 import {
@@ -22,7 +21,7 @@ function makeQueryClient() {
 }
 
 let browserQueryClient: QueryClient | undefined = undefined;
- 
+
 function getQueryClient() {
   if (isServer) {
     // Server: always make a new query client
@@ -51,9 +50,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider navigate={router.push}>
-        <ThemeProvider attribute="class">{children}</ThemeProvider>
-      </RouterProvider>
+      <RouterProvider navigate={router.push}>{children}</RouterProvider>
     </QueryClientProvider>
   );
 }

@@ -38,6 +38,7 @@ CREATE TABLE `doctors` (
 	`endTime` text NOT NULL,
 	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	`timezone` text NOT NULL,
+	`bio` text NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
@@ -63,6 +64,17 @@ CREATE TABLE `patient_notifications` (
 	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	FOREIGN KEY (`patientId`) REFERENCES `patients`(`id`) ON UPDATE cascade ON DELETE cascade,
 	FOREIGN KEY (`appointmentId`) REFERENCES `appointments`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `patient_registrations` (
+	`id` text PRIMARY KEY NOT NULL,
+	`firstName` text NOT NULL,
+	`lastName` text NOT NULL,
+	`email` text NOT NULL,
+	`password` text NOT NULL,
+	`role` text NOT NULL,
+	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
+	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `patients` (
@@ -102,8 +114,9 @@ CREATE TABLE `surgeries` (
 --> statement-breakpoint
 CREATE TABLE `users` (
 	`id` text PRIMARY KEY NOT NULL,
-	`fullName` text NOT NULL,
-	`role` text DEFAULT 'patient' NOT NULL,
+	`firstName` text NOT NULL,
+	`lastName` text NOT NULL,
+	`role` text NOT NULL,
 	`email` text NOT NULL,
 	`password` text NOT NULL,
 	`avatar` text NOT NULL,
@@ -111,8 +124,15 @@ CREATE TABLE `users` (
 	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL
 );
 --> statement-breakpoint
+CREATE INDEX `appointments_start_idx` ON `appointments` (`appointmentStart`);--> statement-breakpoint
+CREATE INDEX `appointments_patient_doctor_idx` ON `appointments` (`patientId`,`doctorId`);--> statement-breakpoint
+CREATE INDEX `doctor_notifications_doctor_idx` ON `doctor_notifications` (`doctorId`);--> statement-breakpoint
+CREATE INDEX `doctor_notifications_is_read_idx` ON `doctor_notifications` (`isRead`);--> statement-breakpoint
 CREATE UNIQUE INDEX `doctors_userId_unique` ON `doctors` (`userId`);--> statement-breakpoint
 CREATE UNIQUE INDEX `patientDoctors_patientId_doctorId_key` ON `patient_doctors` (`patientId`,`doctorId`);--> statement-breakpoint
+CREATE INDEX `patient_notifications_patient_idx` ON `patient_notifications` (`patientId`);--> statement-breakpoint
+CREATE INDEX `patient_notifications_is_read_idx` ON `patient_notifications` (`isRead`);--> statement-breakpoint
 CREATE UNIQUE INDEX `patients_userId_unique` ON `patients` (`userId`);--> statement-breakpoint
-CREATE UNIQUE INDEX `sessions_userId_idx` ON `sessions` (`userId`);--> statement-breakpoint
-CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);
+CREATE INDEX `sessions_userId_idx` ON `sessions` (`userId`);--> statement-breakpoint
+CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);--> statement-breakpoint
+CREATE UNIQUE INDEX `users_email_idx` ON `users` (`email`);

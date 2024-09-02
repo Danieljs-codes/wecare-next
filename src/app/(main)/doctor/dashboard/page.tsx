@@ -1,39 +1,72 @@
-import { Card } from '@ui/card';
 import { Grid } from '@ui/grid';
-import { DashboardCard } from './DashboardCard';
+import hand from '@/assets/hand.png';
+import { TotalVisitors } from './total-visitors';
+import { getSession } from '@lib/session';
+import { redirect } from 'next/navigation';
+import { getUserAndDoctor } from '@lib/utils';
+import { TotalPatients } from './total-patients';
+import { db } from '@server/db';
+import { patientDoctors, patients, users } from '@server/db/schema';
+import { desc, eq } from 'drizzle-orm';
+import { PatientsTable } from '@/components/patients-table';
 
 export const runtime = 'edge';
 
-interface DashboardItem {
-  value: string;
-  description: string;
-}
+async function Dashboard() {
+  const session = await getSession();
+  if (!session || !session.userId) {
+    redirect('/sign-in');
+  }
 
-function Dashboard() {
-  const dashboardData: Record<string, DashboardItem> = {
-    patients: { value: '1,234', description: 'Total Patients' },
-    appointments: { value: '56', description: 'Upcoming Appointments' },
-    revenue: { value: '$12,345', description: 'Monthly Revenue' },
-    ratings: { value: '4.8', description: 'Average Rating' },
-  };
+  const userAndDoctor = await getUserAndDoctor(session.userId);
+
+  const doctorPatients = await db
+    .select({
+      patientId: patients.id,
+      patientName: users.firstName,
+      patientLastName: users.lastName,
+      bloodType: patients.bloodType,
+      gender: patients.gender,
+      genoType: patients.genoType,
+      birthDate: patients.birthDate,
+      occupation: patients.occupation,
+      mobileNumber: patients.mobileNumber,
+      address: patients.address,
+      email: users.email,
+      relationshipCreatedAt: patientDoctors.createdAt,
+    })
+    .from(patientDoctors)
+    .innerJoin(patients, eq(patientDoctors.patientId, patients.id))
+    .innerJoin(users, eq(patients.userId, users.id))
+    .where(eq(patientDoctors.doctorId, userAndDoctor.doctorId))
+    .orderBy(desc(patientDoctors.createdAt))
+    .limit(5);
 
   return (
     <div className="space-y-6 lg:space-y-10">
-      <h1 className="font-semibold text-2xl mb-2 lg:mb-4">Overview</h1>
-      <Grid
-        className="divide-y lg:divide-y-0 lg:divide-x lg:border-x"
-        columns={{ initial: 1, lg: 4 }}
-      >
-        {Object.values(dashboardData).map((item, index) => (
-          <DashboardCard key={index} {...item} />
-        ))}
+      <div>
+        <h1 className="font-semibold text-fg text-xl capitalize">
+          Welcome back, Dr. Olamide
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={hand.src}
+            alt="hand"
+            className="inline-block mb-1 size-[20px] ml-1"
+            aria-hidden="true"
+          />
+        </h1>
+        <p className="mt-2 text-muted-fg text-xs md:text-sm">
+          Here is the latest update for your career. Check now
+        </p>
+      </div>
+      <Grid columns={{ initial: 1, lg: 4 }} gap={{ initial: 4 }}>
+        <TotalVisitors doctorId={userAndDoctor.doctorId} days={7} />
+        <TotalPatients doctorId={userAndDoctor.doctorId} days={7} />
+        <TotalVisitors doctorId={userAndDoctor.doctorId} days={7} />
+        <TotalPatients doctorId={userAndDoctor.doctorId} days={7} />
       </Grid>
       <div>
-        <Card.Header
-          className="px-0 pt-0"
-          title="Products"
-          description="A list of the latest products added to the store."
-        />
+        <PatientsTable patients={doctorPatients} />
       </div>
     </div>
   );

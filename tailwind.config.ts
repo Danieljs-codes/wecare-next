@@ -2,7 +2,7 @@
 import { withTV } from 'tailwind-variants/transformer';
 
 const config = withTV({
-  darkMode: ['class'],
+  darkMode: 'class',
   content: [
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx,js,jsx,md,.mdx}',

@@ -1,3 +1,5 @@
+'use client';
+
 import { buttonStyles } from './button';
 import { Loader } from './loader';
 import {
@@ -33,7 +35,7 @@ const Toast = ({ ...props }: ToasterProps) => {
             '[&:has([data-description])_[data-title]]:!text-lg [&:has([data-description])_[data-title]]:!font-medium',
             '[&>[data-button=true]]:bottom-4 [&>[data-button]]:absolute',
             '[&>[data-action=true]]:right-4',
-            '[&>[data-cancel=true]]:left-4',
+            '[&>[data-cancel=true]]:left-4'
           ),
           icon: 'absolute top-[1rem] sm:top-[1.50rem]',
           content:

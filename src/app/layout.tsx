@@ -4,6 +4,8 @@ import './globals.css';
 import { Providers } from '@components/providers';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
+import { ThemeProvider } from 'next-themes';
+import { Toast } from '@ui/toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,9 +20,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning lang="en">
       <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <ThemeProvider attribute="class">{children}</ThemeProvider>
+          <Toast />
+        </Providers>
       </body>
     </html>
   );

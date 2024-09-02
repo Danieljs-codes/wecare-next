@@ -5,6 +5,7 @@ import { doctors, users } from '@server/db/schema';
 import { getSession } from '@lib/session';
 import { redirect } from 'next/navigation';
 import { eq } from 'drizzle-orm';
+import { getUserAndDoctor } from '@lib/utils';
 
 export const runtime = 'edge';
 
@@ -15,24 +16,7 @@ const DoctorLayout = async ({ children }: { children: ReactNode }) => {
     redirect('/sign-in');
   }
 
-  // Fetch user and doctor with session.userId
-  const [userAndDoctor] = await db
-    .select({
-      userId: users.id,
-      userRole: users.role,
-      doctorId: doctors.id,
-      avatar: users.avatar,
-      firstName: users.firstName,
-      lastName: users.lastName,
-    })
-    .from(users)
-    .leftJoin(doctors, eq(doctors.userId, users.id))
-    .where(eq(users.id, session.userId))
-    .limit(1);
-
-  if (!userAndDoctor) {
-    redirect('/sign-in');
-  }
+  const userAndDoctor = await getUserAndDoctor(session.userId);
 
   return (
     <div>

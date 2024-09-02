@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c8933e08-9919-41d0-9c50-3fbad357c1f2",
+  "id": "2672e62f-8744-4f67-b04c-f936853bd5c7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "appointments": {
@@ -88,7 +88,23 @@
           "default": "(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "appointments_start_idx": {
+          "name": "appointments_start_idx",
+          "columns": [
+            "appointmentStart"
+          ],
+          "isUnique": false
+        },
+        "appointments_patient_doctor_idx": {
+          "name": "appointments_patient_doctor_idx",
+          "columns": [
+            "patientId",
+            "doctorId"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "appointments_patient_fkey": {
           "name": "appointments_patient_fkey",
@@ -188,7 +204,22 @@
           "default": "(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "doctor_notifications_doctor_idx": {
+          "name": "doctor_notifications_doctor_idx",
+          "columns": [
+            "doctorId"
+          ],
+          "isUnique": false
+        },
+        "doctor_notifications_is_read_idx": {
+          "name": "doctor_notifications_is_read_idx",
+          "columns": [
+            "isRead"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "doctor_notifications_doctor_fkey": {
           "name": "doctor_notifications_doctor_fkey",
@@ -283,6 +314,13 @@
         },
         "timezone": {
           "name": "timezone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "bio": {
+          "name": "bio",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -466,7 +504,22 @@
           "default": "(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "patient_notifications_patient_idx": {
+          "name": "patient_notifications_patient_idx",
+          "columns": [
+            "patientId"
+          ],
+          "isUnique": false
+        },
+        "patient_notifications_is_read_idx": {
+          "name": "patient_notifications_is_read_idx",
+          "columns": [
+            "isRead"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "patient_notifications_patient_fkey": {
           "name": "patient_notifications_patient_fkey",
@@ -495,6 +548,73 @@
           "onUpdate": "cascade"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "patient_registrations": {
+      "name": "patient_registrations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "firstName": {
+          "name": "firstName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lastName": {
+          "name": "lastName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -655,7 +775,7 @@
           "columns": [
             "userId"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -766,8 +886,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fullName": {
-          "name": "fullName",
+        "firstName": {
+          "name": "firstName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lastName": {
+          "name": "lastName",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -778,8 +905,7 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "'patient'"
+          "autoincrement": false
         },
         "email": {
           "name": "email",
@@ -822,6 +948,13 @@
       "indexes": {
         "users_email_unique": {
           "name": "users_email_unique",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true
+        },
+        "users_email_idx": {
+          "name": "users_email_idx",
           "columns": [
             "email"
           ],
