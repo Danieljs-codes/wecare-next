@@ -3,12 +3,14 @@ import hand from '@/assets/hand.png';
 import { TotalVisitors } from './total-visitors';
 import { getSession } from '@lib/session';
 import { redirect } from 'next/navigation';
-import { getUserAndDoctor } from '@lib/utils';
 import { TotalPatients } from './total-patients';
 import { db } from '@server/db';
 import { patientDoctors, patients, users } from '@server/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { PatientsTable } from '@/components/patients-table';
+import { getUserAndDoctor } from '@lib/utils';
+import { fetchDoctorAppointments } from '@lib/server';
+import AppointmentsToday from '@components/appointments-today-table';
 
 export const runtime = 'edge';
 
@@ -42,6 +44,12 @@ async function Dashboard() {
     .orderBy(desc(patientDoctors.createdAt))
     .limit(5);
 
+  const appointmentsToday = await fetchDoctorAppointments(
+    userAndDoctor.doctorId,
+    new Date(),
+    5
+  );
+
   return (
     <div className="space-y-6 lg:space-y-10">
       <div>
@@ -67,6 +75,9 @@ async function Dashboard() {
       </Grid>
       <div>
         <PatientsTable patients={doctorPatients} />
+      </div>
+      <div>
+        <AppointmentsToday appointments={appointmentsToday} />
       </div>
     </div>
   );

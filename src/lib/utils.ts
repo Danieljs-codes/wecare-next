@@ -16,16 +16,6 @@ export function getUserTimezone() {
   return timezone;
 }
 
-/**
- * Fetches user and doctor information based on the provided userId.
- *
- * @param {string} userId - The ID of the user.
- * @returns {Promise<object>} The user and doctor information.
- *
- * @remarks
- * This function should only be used in server components, server actions, and route handlers.
- */
-
 export const getUserAndDoctor = cache(async (userId: string) => {
   const [userAndDoctor] = await db
     .select({

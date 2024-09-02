@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { cookies } from 'next/headers';
 import { nanoid } from 'nanoid';
 import { db } from '@/server/db';
