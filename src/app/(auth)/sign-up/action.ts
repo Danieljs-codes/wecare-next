@@ -191,7 +191,7 @@ export const createStep2Registration = async (data: Step2DoctorFormData) => {
   ]);
 
   await createSession(userId);
-  cookies
+  cookies().delete(COOKIE_NAME);
 
   return {
     success: true as const,
