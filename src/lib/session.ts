@@ -13,7 +13,7 @@ const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
-  maxAge: 60 * 60 * 24, // 1 day in seconds
+  maxAge: 60 * 60 * 24 * 30, // 30 days in seconds
   path: '/',
 } satisfies Partial<ResponseCookie>;
 
@@ -21,6 +21,7 @@ async function storeSessionInDatabase(sessionId: string, userId: string) {
   await db.insert(sessions).values({
     id: sessionId,
     userId,
+    
   });
 }
 

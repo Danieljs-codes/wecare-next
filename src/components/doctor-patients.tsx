@@ -63,7 +63,7 @@ export function DoctorPatients({
         <div>
           <h1 className="font-semibold text-xl mb-2">List Patients</h1>
           <p className="text-xs text-muted-fg">
-            There is the latest update for the last 7 days. Check now
+            This is the list of all the patients you have attended to
           </p>
         </div>
         <Button size="small" intent="primary" className="w-full md:w-auto mt-4">
@@ -71,7 +71,7 @@ export function DoctorPatients({
           Export Patients
         </Button>
       </div>
-      <div className="flex flex-col gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="flex items-center gap-x-2">
           <div
             className={buttonStyles({

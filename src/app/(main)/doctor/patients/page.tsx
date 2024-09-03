@@ -21,15 +21,10 @@ const Patients = async ({
 
   const userAndDoctor = await getUserAndDoctor(session.userId);
   const currentPage = Number(searchParams?.page) || 1;
-  const startTime = performance.now();
+
   const { patients, totalPages, totalPatients } = await fetchPaginatedPatients(
     userAndDoctor.doctorId,
     currentPage
-  );
-  const endTime = performance.now();
-  const executionTime = endTime - startTime;
-  console.log(
-    `fetchPaginatedPatients execution time: ${executionTime.toFixed(2)} ms`
   );
 
   return (

@@ -23,7 +23,7 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en">
       <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
         <Providers>
-          <ThemeProvider attribute="class">{children}</ThemeProvider>
+          <ThemeProvider disableTransitionOnChange attribute="class">{children}</ThemeProvider>
           <Toast />
         </Providers>
       </body>
