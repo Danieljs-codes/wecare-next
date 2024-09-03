@@ -98,7 +98,7 @@ export const appointments = sqliteTable(
     doctorId: text('doctorId').notNull(),
     appointmentStart: text('appointmentStart').notNull(), // Stored as UTC ISO 8601: '2023-05-18T14:30:00Z'
     appointmentEnd: text('appointmentEnd').notNull(), // Stored as UTC ISO 8601: '2023-05-18T15:30:00Z'
-    status: text('status').notNull().default('pending'),
+    status: text('status', { enum: ['pending', 'confirmed', 'cancelled',] }).notNull().default('pending'),
     roomName: text('roomName'),
     doctorToken: text('doctorToken'),
     patientToken: text('patientToken'),

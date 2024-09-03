@@ -17,16 +17,6 @@ export const newAppointmentSchema = z.object({
         message: 'Appointment must be at least 1 hour from now',
       }
     ),
-  appointmentStart: z.object({
-    hour: z
-      .number()
-      .min(0, 'Hour must be between 0 and 23')
-      .max(23, 'Hour must be between 0 and 23'),
-    minute: z
-      .number()
-      .min(0, 'Minute must be between 0 and 59')
-      .max(59, 'Minute must be between 0 and 59'),
-  }),
   appointmentDuration: z.enum(
     ['30', '60', '90', '120', '150', '180', '210', '240'],
     {
@@ -36,3 +26,5 @@ export const newAppointmentSchema = z.object({
   ),
   reasonForAppointment: z.string().min(1, 'Reason for appointment is required'),
 });
+
+export type NewAppointmentSchema = z.infer<typeof newAppointmentSchema>;

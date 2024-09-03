@@ -1,14 +1,178 @@
 'use server';
 
-export async function createAppointmentByDoctor() {
-  // Implementation
-  // 1. Validate the input
-  // 2. Validate patient exists
-  // 3. Check for appointment overlap
-  // 4. Check for doctor availability
-  // 5. Check if patient has an appointment on the same day and same time
-  // 6. Ensure the appointment duration fits within available time slots.
-  // 7. Create the appointment for the patient
-  // 8. Send notification to the patient
-  // 9. Return the appointmentId
+import {
+  NewAppointmentSchema,
+  newAppointmentSchema,
+} from '@/schemas/new-appointment';
+import { getSession } from '@lib/session';
+import { getUserAndDoctor } from '@lib/utils';
+import { db } from '@server/db';
+import {
+  appointments,
+  doctors,
+  patientNotifications,
+  patients,
+  users,
+} from '@server/db/schema';
+import { and, eq, gte, lt } from 'drizzle-orm';
+import { DateTime } from 'luxon';
+import { nanoid } from 'nanoid';
+import { redirect } from 'next/navigation';
+
+export async function createAppointmentByDoctor(input: NewAppointmentSchema) {
+  console.log(input);
+  const session = await getSession();
+
+  if (!session) {
+    redirect('/sign-in');
+  }
+
+  const userAndDoctor = await getUserAndDoctor(session.userId);
+
+  if (!userAndDoctor) {
+    redirect('/sign-in');
+  }
+
+  const doctorId = userAndDoctor.doctorId;
+
+  const validatedInput = newAppointmentSchema.safeParse(input);
+  if (!validatedInput.success) {
+    return { error: validatedInput.error.message };
+  }
+
+  const {
+    patientId,
+    appointmentDateTime,
+    appointmentDuration,
+    reasonForAppointment,
+  } = validatedInput.data;
+
+  const patient = await db.query.patients.findFirst({
+    where: eq(patients.id, patientId),
+  });
+
+  if (!patient) {
+    return { error: 'Patient not found' };
+  }
+
+  const appointmentStart = DateTime.fromObject(
+    {
+      year: appointmentDateTime.year,
+      month: appointmentDateTime.month,
+      day: appointmentDateTime.day,
+      hour: appointmentDateTime.hour,
+      minute: appointmentDateTime.minute,
+      second: appointmentDateTime.second,
+      millisecond: appointmentDateTime.millisecond,
+    },
+    { zone: appointmentDateTime.timeZone }
+  )
+    .toUTC()
+    .toISO();
+
+  if (!appointmentStart) {
+    return { error: 'Invalid appointment start' };
+  }
+
+  const appointmentEnd = appointmentDateTime
+    .add({ minutes: parseInt(appointmentDuration) })
+    .toDate()
+    .toISOString();
+
+  const doctor = await db.query.doctors.findFirst({
+    where: eq(doctors.id, doctorId),
+  });
+
+  if (!doctor) {
+    return { error: 'Doctor not found' };
+  }
+
+  const doctorStartTime = DateTime.fromISO(doctor.startTime, {
+    zone: doctor.timezone,
+  });
+  const doctorEndTime = DateTime.fromISO(doctor.endTime, {
+    zone: doctor.timezone,
+  });
+
+  const appointmentStartLocal = DateTime.fromISO(appointmentStart).setZone(
+    doctor.timezone
+  );
+  const appointmentEndLocal = DateTime.fromISO(appointmentEnd).setZone(
+    doctor.timezone
+  );
+
+  if (
+    appointmentStartLocal < doctorStartTime ||
+    appointmentEndLocal > doctorEndTime
+  ) {
+    return {
+      error: "Appointment is outside of doctor's working hours",
+    };
+  }
+
+  const overlappingAppointments = await db.query.appointments.findMany({
+    where: and(
+      eq(appointments.doctorId, doctorId),
+      lt(appointments.appointmentStart, appointmentEnd),
+      gte(appointments.appointmentEnd, appointmentStart)
+    ),
+  });
+
+  if (overlappingAppointments.length > 0) {
+    return {
+      error:
+        'This time slot is already booked. Please choose a different time.',
+    };
+  }
+
+  const patientAppointments = await db.query.appointments.findMany({
+    where: and(
+      eq(appointments.patientId, patientId),
+      lt(appointments.appointmentStart, appointmentEnd),
+      gte(appointments.appointmentEnd, appointmentStart)
+    ),
+  });
+
+  if (patientAppointments.length > 0) {
+    return {
+      error: 'Patient already has an appointment at this time',
+    };
+  }
+
+  const appointmentId = nanoid();
+  const notificationId = nanoid();
+
+  await db.batch([
+    db.insert(appointments).values({
+      id: appointmentId,
+      patientId,
+      doctorId,
+      appointmentStart,
+      appointmentEnd,
+      status: 'confirmed',
+    }),
+
+    db.insert(patientNotifications).values({
+      id: notificationId,
+      patientId,
+      message: `Your appointment with Dr. ${
+        userAndDoctor.lastName
+      } is scheduled for ${appointmentStartLocal.toFormat(
+        'MMMM d, yyyy'
+      )} at ${appointmentStartLocal.toFormat(
+        'h:mm a'
+      )}. Please arrive 10 minutes early.`,
+      isRead: false,
+      type: 'appointment_created',
+      appointmentId,
+      appointmentStartTime: appointmentStart,
+      appointmentEndTime: appointmentEnd,
+    }),
+  ]);
+
+  return {
+    appointmentId,
+    success: true,
+    message: 'Appointment created successfully',
+  };
 }
