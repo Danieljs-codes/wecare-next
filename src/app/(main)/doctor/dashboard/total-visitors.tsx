@@ -19,28 +19,28 @@ export async function TotalVisitors({
 
   const stats = await db
     .select({
-      currentPeriodVisitors: sql<number>`COUNT(DISTINCT CASE WHEN ${
+      currentPeriodAppointments: sql<number>`COUNT(CASE WHEN ${
         appointments.appointmentStart
       } >= ${startDate.toISOString()} AND ${
         appointments.appointmentStart
-      } < ${now.toISOString()} THEN ${appointments.patientId} END)`,
-      previousPeriodVisitors: sql<number>`COUNT(DISTINCT CASE WHEN ${
+      } < ${now.toISOString()} THEN 1 END)`,
+      previousPeriodAppointments: sql<number>`COUNT(CASE WHEN ${
         appointments.appointmentStart
       } >= ${previousStartDate.toISOString()} AND ${
         appointments.appointmentStart
-      } < ${startDate.toISOString()} THEN ${appointments.patientId} END)`,
-      todayVisitors: sql<number>`COUNT(DISTINCT CASE WHEN ${
+      } < ${startDate.toISOString()} THEN 1 END)`,
+      todayAppointments: sql<number>`COUNT(CASE WHEN ${
         appointments.appointmentStart
       } >= ${todayStart.toISOString()} AND ${
         appointments.appointmentStart
-      } < ${now.toISOString()} THEN ${appointments.patientId} END)`,
+      } < ${now.toISOString()} THEN 1 END)`,
     })
     .from(appointments)
     .where(eq(appointments.doctorId, doctorId));
 
-  const currentVisitors = stats[0]?.currentPeriodVisitors || 0;
-  const previousVisitors = stats[0]?.previousPeriodVisitors || 0;
-  const visitorsTodayCount = stats[0]?.todayVisitors || 0;
+  const currentVisitors = stats[0]?.currentPeriodAppointments || 0;
+  const previousVisitors = stats[0]?.previousPeriodAppointments || 0;
+  const visitorsTodayCount = stats[0]?.todayAppointments || 0;
   const percentageChange =
     previousVisitors === 0
       ? currentVisitors > 0

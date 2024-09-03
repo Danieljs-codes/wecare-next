@@ -4,7 +4,7 @@ import { Card } from '@ui/card';
 import { Table } from '@ui/table';
 import { EmptyState } from './empty-state';
 import { useRouter } from 'next/navigation';
-
+import Link from 'next/link';
 interface AppointmentData {
   appointmentId: string;
   appointmentStart: string;
@@ -34,9 +34,9 @@ export function AppointmentsToday({ appointments }: AppointmentsTodayProps) {
         title="Appointments"
         // @ts-expect-error - It expects a string but the underlying element used the `Description` from RAC accepts JSX
         description={
-          <p className="text-">
-            A list of 5 appointments you have today. To see more, go to the
-            appointments page.
+          <p>
+            A list of 5 appointments you have today. To see more, go to the{' '}
+            <Link className="underline" href="/doctor/appointments">appointments page.</Link>
           </p>
         }
         withoutPadding

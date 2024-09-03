@@ -4,6 +4,7 @@ import { Card } from '@ui/card';
 import { Table } from '@ui/table';
 import { EmptyState } from './empty-state';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface PatientData {
   patientId: string;
@@ -35,7 +36,13 @@ export function PatientsTable({ patients }: PatientsTableProps) {
     <div className="pt-2">
       <Card.Header
         title="Patients"
-        description="A list of 5 patients you have attended to. To see more, go to the patients page."
+        // @ts-expect-error - It expects a string but the underlying element used the `Description` from RAC accepts JSX
+        description={
+          <p>
+            A list of 5 patients you have attended to. To see more, go to the{' '}
+            <Link className="underline" href="/doctor/patients">patients page.</Link>
+          </p>
+        }
         withoutPadding
       />
       <Card>

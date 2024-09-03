@@ -51,8 +51,6 @@ async function Dashboard() {
     5
   );
 
-  console.log(appointmentsToday.length, doctorPatients.length);
-
   return (
     <div className="space-y-6 lg:space-y-10">
       <div>

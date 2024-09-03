@@ -28,9 +28,16 @@ export async function TotalPatients({
     newPatients: 0,
   };
 
+  console.log(totalPatients, newPatients);
 
-  const percentageIncrease =
-    totalPatients > 0 ? (newPatients / (totalPatients - newPatients)) * 100 : 0;
+  const percentageIncrease = (() => {
+    if (totalPatients === 0) return 0;
+    if (totalPatients === newPatients) return 100; // 100% increase when all patients are new
+    return Math.min(
+      (newPatients / (totalPatients - newPatients) - 1) * 100,
+      100
+    );
+  })();
 
   return (
     <TotalPatientCard
