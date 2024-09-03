@@ -14,6 +14,7 @@ import { Link } from '@ui/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { useMediaQuery } from '@ui/primitive';
+import { EmptyState } from './empty-state';
 
 interface Patient {
   patientId: string;
@@ -98,7 +99,17 @@ export function DoctorPatients({
             <Table.Column>Contact</Table.Column>
             <Table.Column>Patient Since</Table.Column>
           </Table.Header>
-          <Table.Body items={patients}>
+          <Table.Body
+            renderEmptyState={() => (
+              <EmptyState
+                title="You have no patients yet"
+                description="You can start by adding a new patient or importing patient data."
+                actionLabel="Add New Patient"
+                onAction={() => router.push('/appointments')}
+              />
+            )}
+            items={patients}
+          >
             {patient => (
               <Table.Row id={patient.patientId}>
                 <Table.Cell>{`${patient.patientName} ${patient.patientLastName}`}</Table.Cell>
