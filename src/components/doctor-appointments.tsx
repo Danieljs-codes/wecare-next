@@ -3,6 +3,7 @@
 import { Button } from '@ui/button';
 import { IconPlus } from 'justd-icons';
 import { useState } from 'react';
+import { NewAppointmentModal } from './new-appointment-modal';
 
 export const DoctorAppointments = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +27,7 @@ export const DoctorAppointments = () => {
           Add Appointment
         </Button>
       </div>
+      <NewAppointmentModal isOpen={isOpen} onOpenChange={setIsOpen} />
     </div>
   );
 };

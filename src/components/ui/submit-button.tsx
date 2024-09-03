@@ -1,20 +1,21 @@
-import { Button } from '@/components/ui/button';
+import { Button, ButtonProps } from '@/components/ui/button';
 import { Loader } from '@ui/loader';
 import { cn } from '@lib/utils';
 import { motion } from 'framer-motion';
 
-interface SubmitButtonProps {
+interface SubmitButtonProps extends ButtonProps {
   isLoading: boolean;
   loadingText?: string;
   children: React.ReactNode;
   className?: string;
-}
+} 
 
 export function SubmitButton({
   isLoading,
   loadingText = 'Loading',
   children,
   className,
+  ...rest
 }: SubmitButtonProps) {
   return (
     <Button
@@ -25,6 +26,7 @@ export function SubmitButton({
         isLoading && 'pointer-events-none',
         className
       )}
+      {...rest}
     >
       {isLoading ? (
         <motion.div

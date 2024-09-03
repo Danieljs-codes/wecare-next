@@ -24,6 +24,7 @@ interface TextFieldProps extends TextFieldPrimitiveProps, FieldProps {
   suffix?: React.ReactNode;
   isLoading?: boolean;
   indicatorPlace?: 'prefix' | 'suffix';
+  descriptionClassName?: string;
 }
 
 const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
@@ -37,9 +38,10 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       suffix,
       isLoading,
       indicatorPlace,
+      descriptionClassName,
       ...props
     },
-    ref,
+    ref
   ) => {
     return (
       <TextFieldPrimitive
@@ -64,7 +66,11 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
             <span className="atrs isSfx x2e2">{suffix}</span>
           ) : null}
         </FieldGroup>
-        {description && <Description>{description}</Description>}
+        {description && (
+          <Description className={descriptionClassName}>
+            {description}
+          </Description>
+        )}
         <AnimatePresence>
           {errorMessage && (
             <motion.div
@@ -79,7 +85,7 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
         </AnimatePresence>
       </TextFieldPrimitive>
     );
-  },
+  }
 );
 
 TextField.displayName = 'TextField';
