@@ -133,3 +133,29 @@ export async function fetchPaginatedPatients(
 
   return { patients: doctorPatients, totalPages, totalPatients };
 }
+
+export async function getDoctorAppointmentsForDay(
+  doctorId: string,
+  date: Date
+) {
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const doctorAppointments = await db
+    .select()
+    .from(appointments)
+    .innerJoin(doctors, eq(appointments.doctorId, doctors.id))
+    .where(
+      and(
+        eq(appointments.doctorId, doctorId),
+        sql`${appointments.appointmentStart} >= ${startOfDay.toISOString()}`,
+        sql`${appointments.appointmentStart} <= ${endOfDay.toISOString()}`
+      )
+    )
+    .orderBy(appointments.appointmentStart);
+
+  return doctorAppointments;
+}

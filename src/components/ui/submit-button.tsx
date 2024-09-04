@@ -8,7 +8,7 @@ interface SubmitButtonProps extends ButtonProps {
   loadingText?: string;
   children: React.ReactNode;
   className?: string;
-} 
+}
 
 export function SubmitButton({
   isLoading,
@@ -22,25 +22,26 @@ export function SubmitButton({
       size="small"
       type="submit"
       className={cn(
-        'relative mt-6 w-full overflow-hidden',
+        'relative mt-6 inline-flex items-center justify-center overflow-hidden',
         isLoading && 'pointer-events-none',
         className
       )}
       {...rest}
     >
-      {isLoading ? (
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          <Loader variant="spin" />
-          <span className="sr-only">{loadingText}</span>
-        </motion.div>
-      ) : (
-        children
-      )}
+      <span
+        className={cn('inline-flex items-center', isLoading && 'invisible')}
+      >
+        {children}
+      </span>
+      <motion.div
+        initial={{ y: '100%', opacity: 0 }}
+        animate={{ y: isLoading ? 0 : '100%', opacity: isLoading ? 1 : 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="absolute inset-0 flex items-center justify-center"
+      >
+        <Loader variant="spin" />
+        <span className="sr-only">{loadingText}</span>
+      </motion.div>
     </Button>
   );
 }

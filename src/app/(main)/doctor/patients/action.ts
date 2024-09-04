@@ -18,8 +18,27 @@ import { and, eq, gte, lt } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { nanoid } from 'nanoid';
 import { redirect } from 'next/navigation';
+import { z } from 'zod';
 
-export async function createAppointmentByDoctor(input: NewAppointmentSchema) {
+type NewAppointmentSchemaWithZonedDateTime = {
+  patientId: string;
+  appointmentDateTime: {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    second: number;
+    millisecond: number;
+    timeZone: string;
+  };
+  appointmentDuration: string;
+  reasonForAppointment: string;
+};
+
+export async function createAppointmentByDoctor(
+  input: NewAppointmentSchemaWithZonedDateTime
+) {
   console.log(input);
   const session = await getSession();
 
@@ -35,7 +54,20 @@ export async function createAppointmentByDoctor(input: NewAppointmentSchema) {
 
   const doctorId = userAndDoctor.doctorId;
 
-  const validatedInput = newAppointmentSchema.safeParse(input);
+  const validatedInput = newAppointmentSchema
+    .extend({
+      appointmentDateTime: z.object({
+        year: z.number(),
+        month: z.number(),
+        day: z.number(),
+        hour: z.number(),
+        minute: z.number(),
+        second: z.number(),
+        millisecond: z.number(),
+        timeZone: z.string(),
+      }),
+    })
+    .safeParse(input);
   if (!validatedInput.success) {
     return { error: validatedInput.error.message };
   }
@@ -74,10 +106,14 @@ export async function createAppointmentByDoctor(input: NewAppointmentSchema) {
     return { error: 'Invalid appointment start' };
   }
 
-  const appointmentEnd = appointmentDateTime
-    .add({ minutes: parseInt(appointmentDuration) })
-    .toDate()
-    .toISOString();
+  const appointmentEnd = DateTime.fromObject(appointmentDateTime)
+    .plus({ minutes: parseInt(appointmentDuration) })
+    .toUTC()
+    .toISO();
+
+  if (!appointmentEnd) {
+    return { error: 'Invalid appointment end' };
+  }
 
   const doctor = await db.query.doctors.findFirst({
     where: eq(doctors.id, doctorId),

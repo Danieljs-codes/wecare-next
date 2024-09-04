@@ -10,6 +10,7 @@ import {
   getLocalTimeZone,
   now,
   parseZonedDateTime,
+  today,
 } from '@internationalized/date';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '@ui/button';
@@ -20,8 +21,8 @@ import { Select } from '@ui/select';
 import { SubmitButton } from '@ui/submit-button';
 import { TextField } from '@ui/text-field';
 import { TimeField } from '@ui/time-field';
-import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { toast } from 'sonner';
 
 interface NewAppointmentModalProps {
@@ -29,49 +30,76 @@ interface NewAppointmentModalProps {
   onOpenChange: (isOpen: boolean) => void;
 }
 
-export const NewAppointmentModal = ({
+export function NewAppointmentModal({
   isOpen,
   onOpenChange,
-}: NewAppointmentModalProps) => {
-  const [error, setError] = useState<string | null>(null);
-  const twoHoursFromNow = parseZonedDateTime(
-    now(getLocalTimeZone()).add({ hours: 2 }).toString()
-  );
-  const { handleSubmit, control } = useForm<NewAppointmentSchema>({
+}: NewAppointmentModalProps) {
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+    clearErrors,
+    setError,
+  } = useForm<NewAppointmentSchema>({
     resolver: zodResolver(newAppointmentSchema),
     defaultValues: {
       reasonForAppointment: '',
       patientId: '',
       appointmentDuration: undefined,
-      appointmentDateTime: twoHoursFromNow,
+      appointmentDateTime: parseZonedDateTime(
+        now(getLocalTimeZone()).add({ hours: 2 }).toString()
+      ),
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      clearErrors();
+      reset();
+    }
+  }, [isOpen, clearErrors, reset]);
+
   const { mutate, status } = useMutation({
     mutationKey: ['createAppointment'],
     mutationFn: async (data: NewAppointmentSchema) => {
-      const res = await createAppointmentByDoctor(data);
+      const res = await createAppointmentByDoctor({
+        reasonForAppointment: data.reasonForAppointment,
+        appointmentDuration: data.appointmentDuration,
+        patientId: data.patientId,
+        appointmentDateTime: {
+          year: data.appointmentDateTime.year,
+          month: data.appointmentDateTime.month,
+          day: data.appointmentDateTime.day,
+          hour: data.appointmentDateTime.hour,
+          minute: data.appointmentDateTime.minute,
+          second: data.appointmentDateTime.second,
+          millisecond: data.appointmentDateTime.millisecond,
+          timeZone: data.appointmentDateTime.timeZone,
+        },
+      });
 
       if (res.error && typeof res.error === 'string') {
-        setError(res.error);
+        setError('root', { type: 'manual', message: res.error });
         throw new Error(res.error);
       }
 
       return res;
     },
-
     onSuccess: data => {
       toast.success(data.message);
       onOpenChange(false);
+      reset();
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
     },
   });
 
-  const onSubmit = (data: NewAppointmentSchema) => {
+  const onSubmit: SubmitHandler<NewAppointmentSchema> = data => {
+    clearErrors();
     console.log('Appointment data:', data);
-    try {
-      mutate(data);
-    } catch (error) {
-      console.error('Error calling mutate:', error);
-    }
+    mutate(data);
   };
 
   return (
@@ -91,7 +119,9 @@ export const NewAppointmentModal = ({
           </Modal.Header>
           <Modal.Body>
             <form id="bookAppointmentForm" onSubmit={handleSubmit(onSubmit)}>
-              {error ? <Note intent="danger">{error}</Note> : null}
+              {errors.root && (
+                <Note intent="danger">{errors.root.message}</Note>
+              )}
               <div className="flex flex-col gap-4">
                 <Controller
                   name="patientId"
@@ -112,14 +142,12 @@ export const NewAppointmentModal = ({
                   control={control}
                   render={({ field: { value, onChange } }) => (
                     <DatePicker
+                      minValue={today(getLocalTimeZone())}
                       label="Appointment Date"
                       hideTimeZone
                       hourCycle={12}
                       value={value}
-                      onChange={val => {
-                        console.log(val);
-                        onChange(val);
-                      }}
+                      onChange={onChange}
                     />
                   )}
                 />
@@ -131,7 +159,7 @@ export const NewAppointmentModal = ({
                       placeholder="Select duration"
                       label="Appointment Duration"
                       {...field}
-                      onSelectionChange={selected => field.onChange(selected)}
+                      onSelectionChange={field.onChange}
                       isInvalid={!!error}
                       errorMessage={error?.message}
                     >
@@ -139,12 +167,12 @@ export const NewAppointmentModal = ({
                       <Select.List
                         className="text-sm"
                         items={newAppointmentSchema.shape.appointmentDuration.options.map(
-                          item => ({ id: item, name: item })
+                          item => ({ id: item, name: `${item} minutes` })
                         )}
                       >
                         {item => (
                           <Select.Option id={item.id} textValue={item.name}>
-                            {item.name} minutes
+                            {item.name}
                           </Select.Option>
                         )}
                       </Select.List>
@@ -189,4 +217,4 @@ export const NewAppointmentModal = ({
       </Modal>
     </div>
   );
-};
+}

@@ -169,7 +169,9 @@ export const Step2DoctorForm = () => {
           )}
         />
       </div>
-      <SubmitButton isLoading={isLoading}>Sign up</SubmitButton>
+      <SubmitButton className="w-full" isLoading={isLoading}>
+        Sign up
+      </SubmitButton>
     </form>
   );
 };
