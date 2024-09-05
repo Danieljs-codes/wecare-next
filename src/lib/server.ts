@@ -138,21 +138,52 @@ export async function getDoctorAppointmentsForDay(
   doctorId: string,
   date: Date
 ) {
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
+  // Ensure the input date is treated as UTC
+  const startOfDayUTC = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+  );
+  const endOfDayUTC = new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      23,
+      59,
+      59,
+      999
+    )
+  );
 
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
+  // console.log(startOfDayUTC, endOfDayUTC);
 
   const doctorAppointments = await db
-    .select()
+    .select({
+      appointmentId: appointments.id,
+      appointmentStart: appointments.appointmentStart,
+      appointmentEnd: appointments.appointmentEnd,
+      status: appointments.status,
+      doctorId: doctors.id,
+      doctorUserId: doctors.userId,
+      doctorSpecialization: doctors.specialization,
+      patientId: patients.id,
+      patientUserId: patients.userId,
+      patientFirstName: users.firstName,
+      patientLastName: users.lastName,
+      patientEmail: users.email,
+      patientBloodType: patients.bloodType,
+      patientGender: patients.gender,
+      patientBirthDate: patients.birthDate,
+      patientMobileNumber: patients.mobileNumber,
+    })
     .from(appointments)
     .innerJoin(doctors, eq(appointments.doctorId, doctors.id))
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .innerJoin(users, eq(patients.userId, users.id))
     .where(
       and(
         eq(appointments.doctorId, doctorId),
-        sql`${appointments.appointmentStart} >= ${startOfDay.toISOString()}`,
-        sql`${appointments.appointmentStart} <= ${endOfDay.toISOString()}`
+        gte(appointments.appointmentStart, startOfDayUTC.toISOString()),
+        lt(appointments.appointmentStart, endOfDayUTC.toISOString())
       )
     )
     .orderBy(appointments.appointmentStart);

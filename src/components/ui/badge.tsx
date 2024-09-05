@@ -35,7 +35,7 @@ const badgeStyles = tv({
   }
 })
 
-interface BadgeProps
+export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeStyles> {
   className?: string

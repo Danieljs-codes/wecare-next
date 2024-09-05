@@ -58,7 +58,7 @@ export function AppointmentsToday({ appointments }: AppointmentsTodayProps) {
                 title="No appointments today"
                 description="You have no appointments scheduled for today."
                 actionLabel="Schedule Appointment"
-                onAction={() => router.push('/appointments')}
+                onAction={() => router.push('/doctor/appointments')}
               />
             )}
             items={appointments}

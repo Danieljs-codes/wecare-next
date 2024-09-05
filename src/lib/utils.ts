@@ -44,3 +44,5 @@ export const getUserAndDoctor = cache(async (userId: string) => {
     doctorId: userAndDoctor.doctorId as string,
   };
 });
+
+
