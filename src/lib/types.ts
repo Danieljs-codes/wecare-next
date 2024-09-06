@@ -1,7 +1,7 @@
-import { getDoctorAppointmentsForDay } from './server';
+import { getDoctorAppointments } from './server';
 
 export type Appointment = Awaited<
-  ReturnType<typeof getDoctorAppointmentsForDay>
+  ReturnType<typeof getDoctorAppointments>
 >[0];
 
 export type Appointments = Appointment[];
