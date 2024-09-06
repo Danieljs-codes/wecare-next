@@ -27,6 +27,7 @@ export const Step2DoctorForm = () => {
     defaultValues: {
       specialization: undefined,
       yearsOfExperience: undefined,
+      price: 0,
       availableHours: { startTime: undefined, endTime: undefined },
       timezone: getUserTimezone(),
       bio: '',
@@ -107,6 +108,24 @@ export const Step2DoctorForm = () => {
             />
           )}
         />
+        <Controller
+          name="price"
+          control={control}
+          render={({ field: { ref, ...field }, fieldState: { error } }) => (
+            <NumberField
+              minValue={1}
+              label="Price"
+              {...field}
+              isInvalid={!!error}
+              errorMessage={error?.message}
+              description="This is the price per hour. You can change this later."
+              formatOptions={{
+                style: 'currency',
+                currency: 'USD',
+              }}
+            />
+          )}
+        />
         <div className="flex items-center gap-x-2">
           <Controller
             name="availableHours.startTime"
@@ -161,7 +180,7 @@ export const Step2DoctorForm = () => {
           render={({ field, fieldState: { error } }) => (
             <Textarea
               className="text-sm"
-              label="Bio"
+              label="About"
               {...field}
               isInvalid={!!error}
               errorMessage={error?.message}

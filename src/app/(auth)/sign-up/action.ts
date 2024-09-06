@@ -2,7 +2,12 @@
 
 import { FormData } from '@components/step-1-form';
 import { db } from '@server/db';
-import { doctors, patientRegistrations, users } from '@server/db/schema';
+import {
+  doctors,
+  patientRegistrations,
+  patients,
+  users,
+} from '@server/db/schema';
 import { eq } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 import { nanoid } from 'nanoid';
@@ -10,11 +15,14 @@ import { formSchema } from '@/schemas/sign-in-schema';
 import { revalidatePath } from 'next/cache';
 import {
   doctorStep2Schema,
+  patientStep2Schema,
   Step2DoctorFormData,
+  Step2PatientFormData,
 } from '@/schemas/sign-up-schema';
 import { DateTime } from 'luxon';
 import { createSession } from '@lib/session';
 import { hashPassword } from '@lib/password';
+import { z } from 'zod';
 
 const COOKIE_NAME = 'registration';
 
@@ -117,8 +125,17 @@ export const createStep2Registration = async (data: Step2DoctorFormData) => {
     };
   }
 
-  const { specialization, yearsOfExperience, availableHours, timezone, bio } =
-    formData.data;
+  const {
+    specialization,
+    yearsOfExperience,
+    availableHours,
+    timezone,
+    bio,
+    price,
+  } = formData.data;
+
+  // Convert price to cents
+  const priceInCents = Math.round(price * 100);
 
   // Convert availableHours to ISO 8601 string UTC
   const startTime = DateTime.utc()
@@ -181,6 +198,7 @@ export const createStep2Registration = async (data: Step2DoctorFormData) => {
       startTime,
       endTime,
       bio,
+      price: priceInCents, // Store price in cents
     }),
 
     db
@@ -197,3 +215,119 @@ export const createStep2Registration = async (data: Step2DoctorFormData) => {
     role: registration.role,
   };
 };
+
+const createStep2SchemaExtended = patientStep2Schema
+  .omit({
+    birthDate: true,
+  })
+  .extend({
+    birthDate: z
+      .object({
+        year: z.number().int().min(1900).max(new Date().getFullYear()),
+        month: z.number().int().min(1).max(12),
+        day: z.number().int().min(1).max(31),
+      })
+      .refine(
+        ({ year, month, day }) => {
+          const date = new Date(year, month - 1, day);
+          return (
+            date.getFullYear() === year &&
+            date.getMonth() === month - 1 &&
+            date.getDate() === day
+          );
+        },
+        { message: 'Invalid date' }
+      ),
+  });
+
+export async function createStep2PatientRegistration(
+  data: z.infer<typeof createStep2SchemaExtended>
+) {
+  const formData = createStep2SchemaExtended.safeParse(data);
+
+  if (!formData.success) {
+    return {
+      success: false as const,
+      message: 'Invalid form data',
+    };
+  }
+
+  const { birthDate, ...rest } = formData.data;
+
+  const birthDateISO = DateTime.fromObject(
+    {
+      year: birthDate.year,
+      month: birthDate.month,
+      day: birthDate.day,
+    },
+    { zone: 'UTC' }
+  ).toISO();
+
+  if (!birthDateISO) {
+    return {
+      success: false as const,
+      message: 'Invalid birth date',
+    };
+  }
+
+  const registrationId = cookies().get(COOKIE_NAME)?.value;
+
+  if (!registrationId) {
+    return {
+      success: false as const,
+      message: 'Step 1 not completed',
+    };
+  }
+
+  const registration = await db.query.patientRegistrations.findFirst({
+    where: eq(patientRegistrations.id, registrationId),
+  });
+
+  if (!registration) {
+    return {
+      success: false as const,
+      message: 'Step 1 registration not found. Please try again.',
+    };
+  }
+
+  const userId = nanoid();
+  const hashedPassword = await hashPassword(registration.password);
+  const user = await db.batch([
+    db.insert(users).values({
+      id: userId,
+      email: registration.email,
+      password: hashedPassword,
+      firstName: registration.firstName,
+      lastName: registration.lastName,
+      role: registration.role,
+      avatar: `https://i.pravatar.cc/150?u=${userId}`,
+    }),
+
+    db.insert(patients).values({
+      id: nanoid(),
+      userId,
+      birthDate: birthDateISO,
+      address: rest.address,
+      gender: rest.gender,
+      bloodType: rest.bloodType,
+      genoType: rest.genoType,
+      mobileNumber: rest.mobileNumber,
+      occupation: rest.occupation,
+      timezone: rest.timezone,
+    }),
+
+    db
+      .delete(patientRegistrations)
+      .where(eq(patientRegistrations.id, registrationId)),
+  ]);
+
+  await createSession(userId);
+
+  cookies().delete(COOKIE_NAME);
+
+  return {
+    success: true as const,
+    message: 'Registration created successfully',
+    role: registration.role,
+  };
+}

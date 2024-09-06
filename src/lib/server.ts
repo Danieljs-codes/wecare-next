@@ -16,9 +16,11 @@ import {
   doctors,
   patientDoctors,
   patients,
+  payments,
+  reviews,
   users,
 } from '@server/db/schema';
-import { and, desc, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, isNull, lt, or, sql } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
@@ -134,7 +136,9 @@ export async function fetchPaginatedPatients(
   return { patients: doctorPatients, totalPages, totalPatients };
 }
 
-export async function getDoctorAppointmentsForDay(
+
+
+export async function getDoctorAppointments(
   doctorId: string,
   date: Date
 ) {
@@ -154,19 +158,18 @@ export async function getDoctorAppointmentsForDay(
     )
   );
 
-  // console.log(startOfDayUTC, endOfDayUTC);
-
   const doctorAppointments = await db
     .select({
       appointmentId: appointments.id,
       appointmentStart: appointments.appointmentStart,
       appointmentEnd: appointments.appointmentEnd,
       status: appointments.status,
+      reason: appointments.reason,
+      notes: appointments.notes,
+      initiatedBy: appointments.initiatedBy,
       doctorId: doctors.id,
-      doctorUserId: doctors.userId,
       doctorSpecialization: doctors.specialization,
       patientId: patients.id,
-      patientUserId: patients.userId,
       patientFirstName: users.firstName,
       patientLastName: users.lastName,
       patientEmail: users.email,
@@ -174,19 +177,50 @@ export async function getDoctorAppointmentsForDay(
       patientGender: patients.gender,
       patientBirthDate: patients.birthDate,
       patientMobileNumber: patients.mobileNumber,
+      paymentStatus: payments.status,
+      paymentAmount: payments.amount,
     })
     .from(appointments)
     .innerJoin(doctors, eq(appointments.doctorId, doctors.id))
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .innerJoin(users, eq(patients.userId, users.id))
+    .leftJoin(payments, eq(appointments.id, payments.appointmentId))
     .where(
       and(
         eq(appointments.doctorId, doctorId),
         gte(appointments.appointmentStart, startOfDayUTC.toISOString()),
-        lt(appointments.appointmentStart, endOfDayUTC.toISOString())
+        lt(appointments.appointmentStart, endOfDayUTC.toISOString()),
+        or(
+          eq(appointments.status, 'confirmed'),
+          eq(appointments.status, 'cancelled'),
+          eq(appointments.status, 'completed'),
+          eq(appointments.status, 'no_show')
+        )
       )
     )
     .orderBy(appointments.appointmentStart);
 
   return doctorAppointments;
+}
+
+export async function getUserAndPatient(userId: string) {
+  const [userAndPatient] = await db
+    .select({
+      userId: users.id,
+      userRole: users.role,
+      patientId: patients.id,
+      avatar: users.avatar,
+      firstName: users.firstName,
+      lastName: users.lastName,
+    })
+    .from(users)
+    .leftJoin(patients, eq(users.id, patients.userId))
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!userAndPatient || userAndPatient.userRole !== 'patient') {
+    redirect('/sign-in');
+  }
+
+  return userAndPatient;
 }

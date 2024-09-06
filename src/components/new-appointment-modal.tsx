@@ -109,6 +109,7 @@ export function NewAppointmentModal({
           closeButton={false}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
+          isBlurred
         >
           <Modal.Header>
             <Modal.Title>Schedule New Appointment</Modal.Title>

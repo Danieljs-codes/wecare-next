@@ -5,11 +5,11 @@ CREATE TABLE `appointments` (
 	`appointmentStart` text NOT NULL,
 	`appointmentEnd` text NOT NULL,
 	`status` text DEFAULT 'pending' NOT NULL,
-	`roomName` text,
-	`doctorToken` text,
-	`patientToken` text,
+	`reason` text,
+	`notes` text,
 	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
+	`initiatedBy` text NOT NULL,
 	FOREIGN KEY (`patientId`) REFERENCES `patients`(`id`) ON UPDATE cascade ON DELETE cascade,
 	FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`) ON UPDATE cascade ON DELETE cascade
 );
@@ -39,6 +39,7 @@ CREATE TABLE `doctors` (
 	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	`timezone` text NOT NULL,
 	`bio` text NOT NULL,
+	`price` integer NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
@@ -91,6 +92,29 @@ CREATE TABLE `patients` (
 	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	`timezone` text NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `payments` (
+	`id` text PRIMARY KEY NOT NULL,
+	`appointmentId` text NOT NULL,
+	`amount` integer NOT NULL,
+	`status` text DEFAULT 'pending' NOT NULL,
+	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
+	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
+	FOREIGN KEY (`appointmentId`) REFERENCES `appointments`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `reviews` (
+	`id` text PRIMARY KEY NOT NULL,
+	`patientId` text NOT NULL,
+	`doctorId` text NOT NULL,
+	`appointmentId` text NOT NULL,
+	`rating` integer NOT NULL,
+	`comment` text,
+	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
+	FOREIGN KEY (`patientId`) REFERENCES `patients`(`id`) ON UPDATE cascade ON DELETE cascade,
+	FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`) ON UPDATE cascade ON DELETE cascade,
+	FOREIGN KEY (`appointmentId`) REFERENCES `appointments`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `sessions` (

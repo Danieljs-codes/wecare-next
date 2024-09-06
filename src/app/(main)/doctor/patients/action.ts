@@ -17,6 +17,7 @@ import {
 import { and, eq, gte, lt } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { nanoid } from 'nanoid';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
@@ -186,6 +187,9 @@ export async function createAppointmentByDoctor(
       appointmentStart,
       appointmentEnd,
       status: 'confirmed',
+      reason: reasonForAppointment,
+      notes: '',
+      initiatedBy: 'doctor',
     }),
 
     db.insert(patientNotifications).values({
@@ -205,6 +209,8 @@ export async function createAppointmentByDoctor(
       appointmentEndTime: appointmentEnd,
     }),
   ]);
+
+  revalidatePath('/doctor/appointments');
 
   return {
     appointmentId,

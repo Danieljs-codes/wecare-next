@@ -12,6 +12,7 @@
     "deploy": "bun pages:build && wrangler pages deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
     "list": "wrangler d1 migrations list wecare-next --local",
+    "gen": "drizzle-kit generate",
     "apply": "wrangler d1 migrations apply wecare-next --local"
   },
   "dependencies": {

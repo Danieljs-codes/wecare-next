@@ -5,7 +5,12 @@ import { IconCalendar2, IconPlus } from 'justd-icons';
 import { useState } from 'react';
 import { NewAppointmentModal } from './new-appointment-modal';
 import { DatePicker } from '@ui/date-picker';
-import { getLocalTimeZone, today, CalendarDate, parseDate } from '@internationalized/date';
+import {
+  getLocalTimeZone,
+  today,
+  CalendarDate,
+  parseDate,
+} from '@internationalized/date';
 import { Appointments } from '@lib/types';
 import { Table } from '@ui/table';
 import { Card } from '@ui/card';
@@ -31,7 +36,7 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
   };
 
   function getStatusIntent(
-    status: 'pending' | 'confirmed' | 'cancelled'
+    status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show'
   ): BadgeProps['intent'] {
     switch (status) {
       case 'pending':
@@ -40,6 +45,10 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
         return 'success';
       case 'cancelled':
         return 'danger';
+      case 'completed':
+        return 'primary';
+      case 'no_show':
+        return 'secondary';
       default:
         return 'primary';
     }
@@ -79,7 +88,11 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
         <DatePicker
           aria-label="Appointment Date"
           onChange={handleDateChange}
-          defaultValue={parseDate(searchParams.get('date') ?? '') ?? today(getLocalTimeZone())}
+          defaultValue={
+            searchParams.get('date')
+              ? parseDate(searchParams.get('date')!)
+              : today(getLocalTimeZone())
+          }
         />
       </div>
       <div className="mt-6">
@@ -91,6 +104,9 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
               <Table.Column>Status</Table.Column>
               <Table.Column>Appointment Date</Table.Column>
               <Table.Column>Time</Table.Column>
+              <Table.Column>Gender</Table.Column>
+              <Table.Column>Blood Type</Table.Column>
+              <Table.Column>Birth Date</Table.Column>
             </Table.Header>
             <Table.Body
               renderEmptyState={() => (
@@ -126,6 +142,15 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
                       appointment.appointmentStart,
                       appointment.appointmentEnd
                     )}
+                  </Table.Cell>
+                  <Table.Cell>{appointment.patientGender}</Table.Cell>
+                  <Table.Cell>{appointment.patientBloodType}</Table.Cell>
+                  <Table.Cell>
+                    {appointment.patientBirthDate
+                      ? DateTime.fromISO(appointment.patientBirthDate).toFormat(
+                          'LLL dd, yyyy'
+                        )
+                      : 'N/A'}
                   </Table.Cell>
                 </Table.Row>
               )}

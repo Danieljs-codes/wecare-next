@@ -1,10 +1,9 @@
-'use client';
+'use client'
 
-import { Aside } from '@ui/aside';
-import { Button } from '@ui/button';
-import { Menu } from '@ui/menu';
+import { Aside } from '@ui/aside'
+import { Button } from '@ui/button'
+import { Menu } from '@ui/menu'
 import {
-  IconAccessible,
   IconBell,
   IconCalendar2,
   IconChevronLgDown,
@@ -13,75 +12,58 @@ import {
   IconFolderDelete,
   IconHome,
   IconLogout,
+  IconShieldCrossed,
   IconSearch,
   IconSettings,
   IconSupport,
   IconMoon,
-} from 'justd-icons';
-import { ReactNode } from 'react';
-import { Avatar } from '@ui/avatar';
-import { Link } from '@ui/link';
-import { Logo } from './logo';
-import { usePathname } from 'next/navigation';
-import { useTheme } from 'next-themes';
-import { logout } from '@/app/(auth)/action';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+} from 'justd-icons'
+import { ReactNode } from 'react'
+import { Avatar } from '@ui/avatar'
+import { Link } from '@ui/link'
+import { Logo } from './logo'
+import { usePathname } from 'next/navigation'
+import { useTheme } from 'next-themes'
 
 const asideItems = [
-  { icon: IconDashboard, href: '/doctor/dashboard', label: 'Overview' },
-  { icon: IconAccessible, href: '/doctor/patients', label: 'Patients' },
-  { icon: IconCalendar2, href: '/doctor/appointments', label: 'Appointments' },
-  { icon: IconSettings, href: '/doctor/settings', label: 'Settings' },
-];
+  { icon: IconDashboard, href: '/patient/dashboard', label: 'Overview' },
+  { icon: IconShieldCrossed, href: '/patient/appointments', label: 'Appointments' },
+  { icon: IconCalendar2, href: '/patient/medical-history', label: 'Medical History' },
+  { icon: IconSettings, href: '/patient/settings', label: 'Settings' },
+]
 
 const navbarButtons = [
-  { icon: IconBell, label: 'Inbox' },
+  { icon: IconBell, label: 'Notifications' },
   { icon: IconSearch, label: 'Search' },
-];
+]
 
 const menuItems = [
-  { icon: IconHome, href: '/doctor/dashboard', label: 'Home' },
+  { icon: IconHome, href: '/patient/dashboard', label: 'Home' },
   { icon: IconCirclePerson, label: 'Profile' },
   { icon: IconSupport, label: 'Contact Support' },
   { type: 'separator' },
   { icon: IconMoon, label: 'Toggle theme', onAction: () => {} }, // Placeholder for theme toggle
-  { icon: IconLogout, label: 'Log out', onAction: () => {} }, // Add onAction placeholder
+  { icon: IconLogout, label: 'Log out' },
   { icon: IconFolderDelete, label: 'Delete account', intent: 'danger' },
-];
+]
 
-interface DoctorLayoutProps {
-  children: ReactNode;
-  name: string;
-  avatar: string;
+interface PatientLayoutProps {
+  children: ReactNode
+  name: string
+  avatar: string
 }
 
-export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
-  const pathname = usePathname();
-  const { setTheme, theme } = useTheme();
-  const router = useRouter();
+export function PatientLayout({ children, avatar, name }: PatientLayoutProps) {
+  const pathname = usePathname()
+  const { setTheme, theme } = useTheme()
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+  function toggleTheme() {
+    setTheme(theme === 'light' ? 'dark' : 'light')
+  }
 
-  const handleLogout = async () => {
-    const result = await logout();
-    if (result.success) {
-      toast.success(result.message);
-      router.push('/sign-in');
-    }
-  };
-
-  const updatedMenuItems = menuItems.map(item => {
-    if (item.label === 'Toggle theme') {
-      return { ...item, onAction: toggleTheme };
-    }
-    if (item.label === 'Log out') {
-      return { ...item, onAction: handleLogout };
-    }
-    return item;
-  });
+  const updatedMenuItems = menuItems.map(item =>
+    item.label === 'Toggle theme' ? { ...item, onAction: toggleTheme } : item
+  )
 
   return (
     <div>
@@ -196,5 +178,5 @@ export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
         <main className="relative">{children}</main>
       </Aside.Layout>
     </div>
-  );
+  )
 }

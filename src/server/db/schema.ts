@@ -47,6 +47,7 @@ export const doctors = sqliteTable(
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
     timezone: text('timezone').notNull(), // e.g., 'Europe/Paris'
     bio: text('bio').notNull(),
+    price: int('price').notNull(), // doctor's consultation fee
   },
   doctors => ({
     doctors_user_fkey: foreignKey({
@@ -98,16 +99,20 @@ export const appointments = sqliteTable(
     doctorId: text('doctorId').notNull(),
     appointmentStart: text('appointmentStart').notNull(), // Stored as UTC ISO 8601: '2023-05-18T14:30:00Z'
     appointmentEnd: text('appointmentEnd').notNull(), // Stored as UTC ISO 8601: '2023-05-18T15:30:00Z'
-    status: text('status', { enum: ['pending', 'confirmed', 'cancelled',] }).notNull().default('pending'),
-    roomName: text('roomName'),
-    doctorToken: text('doctorToken'),
-    patientToken: text('patientToken'),
+    status: text('status', {
+      enum: ['pending', 'confirmed', 'cancelled', 'completed', 'no_show'],
+    })
+      .notNull()
+      .default('pending'),
+    reason: text('reason'), // reason for the visit
+    notes: text('notes'), // post-appointment notes
     createdAt: text('createdAt')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
     updatedAt: text('updatedAt')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
+    initiatedBy: text('initiatedBy', { enum: ['doctor', 'patient'] }).notNull(),
   },
   appointments => ({
     appointments_patient_fkey: foreignKey({
@@ -131,6 +136,35 @@ export const appointments = sqliteTable(
       appointments.patientId,
       appointments.doctorId
     ),
+  })
+);
+
+export const payments = sqliteTable(
+  'payments',
+  {
+    id: text('id').notNull().primaryKey(),
+    appointmentId: text('appointmentId').notNull(),
+    amount: int('amount').notNull(),
+    status: text('status', {
+      enum: ['pending', 'completed', 'failed', 'refunded'],
+    })
+      .notNull()
+      .default('pending'),
+    createdAt: text('createdAt')
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
+    updatedAt: text('updatedAt')
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
+  },
+  payments => ({
+    payments_appointment_fkey: foreignKey({
+      name: 'payments_appointment_fkey',
+      columns: [payments.appointmentId],
+      foreignColumns: [appointments.id],
+    })
+      .onDelete('cascade')
+      .onUpdate('cascade'),
   })
 );
 
@@ -317,6 +351,45 @@ export const patientRegistrations = sqliteTable('patient_registrations', {
     .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
 });
 
+export const reviews = sqliteTable(
+  'reviews',
+  {
+    id: text('id').notNull().primaryKey(),
+    patientId: text('patientId').notNull(),
+    doctorId: text('doctorId').notNull(),
+    appointmentId: text('appointmentId').notNull(),
+    rating: int('rating').notNull(),
+    comment: text('comment'),
+    createdAt: text('createdAt')
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
+  },
+  reviews => ({
+    reviews_patient_fkey: foreignKey({
+      name: 'reviews_patient_fkey',
+      columns: [reviews.patientId],
+      foreignColumns: [patients.id],
+    })
+      .onDelete('cascade')
+      .onUpdate('cascade'),
+    reviews_doctor_fkey: foreignKey({
+      name: 'reviews_doctor_fkey',
+      columns: [reviews.doctorId],
+      foreignColumns: [doctors.id],
+    })
+      .onDelete('cascade')
+      .onUpdate('cascade'),
+    reviews_appointment_fkey: foreignKey({
+      name: 'reviews_appointment_fkey',
+      columns: [reviews.appointmentId],
+      foreignColumns: [appointments.id],
+    })
+      .onDelete('cascade')
+      .onUpdate('cascade'),
+  })
+);
+
+// Relations
 export const usersRelations = relations(users, ({ many }) => ({
   doctor: many(doctors, {
     relationName: 'doctorsTousers',
@@ -347,6 +420,9 @@ export const doctorsRelations = relations(doctors, ({ one, many }) => ({
   doctorNotifications: many(doctorNotifications, {
     relationName: 'doctorNotificationsTodoctors',
   }),
+  reviews: many(reviews, {
+    relationName: 'reviewsToDoctors',
+  }),
 }));
 
 export const patientsRelations = relations(patients, ({ one, many }) => ({
@@ -366,6 +442,9 @@ export const patientsRelations = relations(patients, ({ one, many }) => ({
   }),
   patientNotifications: many(patientNotifications, {
     relationName: 'patientNotificationsTopatients',
+  }),
+  reviews: many(reviews, {
+    relationName: 'reviewsToPatients',
   }),
 }));
 
@@ -388,8 +467,26 @@ export const appointmentsRelations = relations(
     doctorNotifications: many(doctorNotifications, {
       relationName: 'appointmentsTodoctorNotifications',
     }),
+    payment: one(payments, {
+      relationName: 'appointmentsToPayments',
+      fields: [appointments.id],
+      references: [payments.appointmentId],
+    }),
+    review: one(reviews, {
+      relationName: 'appointmentsToReviews',
+      fields: [appointments.id],
+      references: [reviews.appointmentId],
+    }),
   })
 );
+
+export const paymentsRelations = relations(payments, ({ one }) => ({
+  appointment: one(appointments, {
+    relationName: 'appointmentsToPayments',
+    fields: [payments.appointmentId],
+    references: [appointments.id],
+  }),
+}));
 
 export const surgeriesRelations = relations(surgeries, ({ one }) => ({
   patient: one(patients, {
@@ -454,5 +551,23 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
     relationName: 'usersToSessions',
     fields: [sessions.userId],
     references: [users.id],
+  }),
+}));
+
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+  patient: one(patients, {
+    relationName: 'reviewsToPatients',
+    fields: [reviews.patientId],
+    references: [patients.id],
+  }),
+  doctor: one(doctors, {
+    relationName: 'reviewsToDoctors',
+    fields: [reviews.doctorId],
+    references: [doctors.id],
+  }),
+  appointment: one(appointments, {
+    relationName: 'appointmentsToReviews',
+    fields: [reviews.appointmentId],
+    references: [appointments.id],
   }),
 }));

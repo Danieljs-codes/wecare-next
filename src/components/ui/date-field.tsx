@@ -1,5 +1,6 @@
 "use client"
 
+import React, { forwardRef } from "react"
 import {
   DateField as DateFieldPrimitive,
   type DateFieldProps as DateFieldPrimitiveProps,
@@ -20,21 +21,21 @@ interface DateFieldProps<T extends DateValue> extends DateFieldPrimitiveProps<T>
   errorMessage?: string | ((validation: ValidationResult) => string)
 }
 
-const DateField = <T extends DateValue>({
-  label,
-  description,
-  errorMessage,
-  ...props
-}: DateFieldProps<T>) => {
+const DateField = forwardRef(<T extends DateValue>(
+  { label, description, errorMessage, ...props }: DateFieldProps<T>,
+  ref: React.Ref<HTMLDivElement>
+) => {
   return (
-    <DateFieldPrimitive {...props} className={ctr(props.className, "flex flex-col gap-1")}>
+    <DateFieldPrimitive {...props} ref={ref} className={ctr(props.className, "flex flex-col gap-1")}>
       {label && <Label>{label}</Label>}
       <DateInput />
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
     </DateFieldPrimitive>
   )
-}
+})
+
+DateField.displayName = "DateField"
 
 const segmentStyles = tv({
   base: "inline shrink-0 rounded p-0.5 tracking-wider text-fg caret-transparent outline outline-0 forced-color-adjust-none type-literal:px-0 lg:text-sm forced-colors:text-[ButtonText]",

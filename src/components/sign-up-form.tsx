@@ -4,6 +4,7 @@ import { getPatientRegistrationDetails } from '@/app/(auth)/sign-up/action';
 import { Step1Form } from '@components/step-1-form';
 import { Logo } from '@components/logo';
 import { Step2DoctorForm } from './step-2-doctor-form';
+import Step2PatientForm from './step-2-patient-form';
 
 function SignUpForm({
   patientRegDetails,
@@ -45,7 +46,7 @@ function SignUpForm({
             <Step2DoctorForm />
           )}
           {step === 2 && patientRegDetails?.role === 'patient' && (
-            <p>{patientRegDetails.role}</p>
+            <Step2PatientForm />
           )}
         </div>
       </div>

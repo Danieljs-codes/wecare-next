@@ -1,3 +1,4 @@
+import { CalendarDate, getLocalTimeZone, now } from '@internationalized/date';
 import { z } from 'zod';
 
 export const doctorStep2Schema = z.object({
@@ -74,6 +75,50 @@ export const doctorStep2Schema = z.object({
     }),
   timezone: z.string(),
   bio: z.string().min(10, { message: 'Bio must be at least 10 characters' }),
+  price: z
+    .number({
+      invalid_type_error: 'Price must be a number',
+    })
+    .positive({ message: 'Price must be positive' }),
 });
 
 export type Step2DoctorFormData = z.infer<typeof doctorStep2Schema>;
+
+export const patientStep2Schema = z.object({
+  bloodType: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'], {
+    errorMap: () => ({ message: 'Invalid blood type' }),
+  }),
+  gender: z.enum(['male', 'female'], {
+    errorMap: () => ({ message: 'Invalid gender' }),
+  }),
+  genoType: z.enum(['AA', 'AS', 'SS'], {
+    errorMap: () => ({ message: 'Invalid genotype' }),
+  }),
+  birthDate: z
+    .custom<CalendarDate>(val => val instanceof CalendarDate, {
+      message: 'Invalid birth date',
+    })
+    .refine(
+      val => {
+        const currentTime = now(getLocalTimeZone());
+        return val.compare(currentTime) <= 0;
+      },
+      {
+        message: 'Birth date cannot be in the future',
+      }
+    ),
+  occupation: z
+    .string()
+    .min(1, { message: 'Occupation is required' })
+    .max(100, { message: 'Occupation must be 100 characters or less' }),
+  mobileNumber: z
+    .string()
+    .regex(/^\+?[0-9]{10,14}$/, { message: 'Invalid mobile number format' }),
+  address: z
+    .string()
+    .min(1, { message: 'Address is required' })
+    .max(255, { message: 'Address must be 255 characters or less' }),
+  timezone: z.string(),
+});
+
+export type Step2PatientFormData = z.infer<typeof patientStep2Schema>;

@@ -94,7 +94,7 @@ const NumberField = forwardRef<HTMLDivElement, NumberFieldProps>(
             </>
           )}
         </FieldGroup>
-        {description && <Description>{description}</Description>}
+        {description && <Description className='text-sm'>{description}</Description>}
         <FieldError>{errorMessage}</FieldError>
       </NumberFieldPrimitive>
     );

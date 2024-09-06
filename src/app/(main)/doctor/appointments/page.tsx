@@ -1,5 +1,5 @@
 import { DoctorAppointments } from '@components/doctor-appointments';
-import { getDoctorAppointmentsForDay } from '@lib/server';
+import { getDoctorAppointments } from '@lib/server';
 import { getSession } from '@lib/session';
 import { getUserAndDoctor } from '@lib/utils';
 import { redirect } from 'next/navigation';
@@ -34,7 +34,7 @@ const Appointments = async ({
   }
 
   // Use the adjusted date for fetching appointments
-  const appointments = await getDoctorAppointmentsForDay(
+  const appointments = await getDoctorAppointments(
     userAndDoctor.doctorId,
     date
   );

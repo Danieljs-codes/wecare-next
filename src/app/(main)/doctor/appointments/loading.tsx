@@ -1,13 +1,17 @@
+'use client';
+
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
 import { Table } from '@/components/ui/table';
 
 export default function AppointmentsLoadingState() {
   return (
-    <div className="p-6 space-y-6 bg-background text-foreground">
-      <div className="space-y-2">
-        <Skeleton className="h-10 w-48" /> {/* Appointments title */}
-        <Skeleton className="h-5 w-96" /> {/* Subtitle */}
+    <div className="space-y-6 bg-background text-foreground">
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-48" /> {/* Appointments title */}
+          <Skeleton className="h-5 w-96" /> {/* Subtitle */}
+        </div>
+        <Skeleton className="h-10 w-40" /> {/* Add Appointment button */}
       </div>
 
       <div className="flex justify-between items-center">
@@ -16,15 +20,14 @@ export default function AppointmentsLoadingState() {
           <Skeleton className="h-6 w-32" /> {/* Appointments text */}
         </div>
         <div className="flex space-x-4">
-          <Skeleton className="h-10 w-40" /> {/* Add Appointment button */}
           <Skeleton className="h-10 w-40 rounded-md" /> {/* Date picker */}
         </div>
       </div>
 
-      <Table>
+      <Table aria-label="Loading Appointments">
         <Table.Header>
           <Table.Row>
-            <Table.Column>
+            <Table.Column isRowHeader>
               <Skeleton className="h-4 w-24" />
             </Table.Column>
             <Table.Column>
