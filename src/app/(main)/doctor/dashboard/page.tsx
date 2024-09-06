@@ -11,7 +11,6 @@ import { PatientsTable } from '@/components/patients-table';
 import { getUserAndDoctor } from '@lib/utils';
 import { fetchDoctorAppointments } from '@lib/server';
 import AppointmentsToday from '@components/appointments-today-table';
-import { seedDB } from '../action';
 
 export const runtime = 'edge';
 
