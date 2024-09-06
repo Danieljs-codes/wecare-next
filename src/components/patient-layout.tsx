@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { Aside } from '@ui/aside'
-import { Button } from '@ui/button'
-import { Menu } from '@ui/menu'
+import { Aside } from '@ui/aside';
+import { Button } from '@ui/button';
+import { Menu } from '@ui/menu';
 import {
   IconBell,
   IconCalendar2,
@@ -17,25 +17,34 @@ import {
   IconSettings,
   IconSupport,
   IconMoon,
-} from 'justd-icons'
-import { ReactNode } from 'react'
-import { Avatar } from '@ui/avatar'
-import { Link } from '@ui/link'
-import { Logo } from './logo'
-import { usePathname } from 'next/navigation'
-import { useTheme } from 'next-themes'
+} from 'justd-icons';
+import { ReactNode } from 'react';
+import { Avatar } from '@ui/avatar';
+import { Link } from '@ui/link';
+import { Logo } from './logo';
+import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 
 const asideItems = [
   { icon: IconDashboard, href: '/patient/dashboard', label: 'Overview' },
-  { icon: IconShieldCrossed, href: '/patient/appointments', label: 'Appointments' },
-  { icon: IconCalendar2, href: '/patient/medical-history', label: 'Medical History' },
+  { icon: IconSearch, href: '/patient/search', label: 'Search' },
+  {
+    icon: IconShieldCrossed,
+    href: '/patient/appointments',
+    label: 'Appointments',
+  },
+  {
+    icon: IconCalendar2,
+    href: '/patient/medical-history',
+    label: 'Medical History',
+  },
   { icon: IconSettings, href: '/patient/settings', label: 'Settings' },
-]
+];
 
 const navbarButtons = [
   { icon: IconBell, label: 'Notifications' },
   { icon: IconSearch, label: 'Search' },
-]
+];
 
 const menuItems = [
   { icon: IconHome, href: '/patient/dashboard', label: 'Home' },
@@ -45,25 +54,25 @@ const menuItems = [
   { icon: IconMoon, label: 'Toggle theme', onAction: () => {} }, // Placeholder for theme toggle
   { icon: IconLogout, label: 'Log out' },
   { icon: IconFolderDelete, label: 'Delete account', intent: 'danger' },
-]
+];
 
 interface PatientLayoutProps {
-  children: ReactNode
-  name: string
-  avatar: string
+  children: ReactNode;
+  name: string;
+  avatar: string;
 }
 
 export function PatientLayout({ children, avatar, name }: PatientLayoutProps) {
-  const pathname = usePathname()
-  const { setTheme, theme } = useTheme()
+  const pathname = usePathname();
+  const { setTheme, theme } = useTheme();
 
   function toggleTheme() {
-    setTheme(theme === 'light' ? 'dark' : 'light')
+    setTheme(theme === 'light' ? 'dark' : 'light');
   }
 
   const updatedMenuItems = menuItems.map(item =>
     item.label === 'Toggle theme' ? { ...item, onAction: toggleTheme } : item
-  )
+  );
 
   return (
     <div>
@@ -178,5 +187,5 @@ export function PatientLayout({ children, avatar, name }: PatientLayoutProps) {
         <main className="relative">{children}</main>
       </Aside.Layout>
     </div>
-  )
+  );
 }
