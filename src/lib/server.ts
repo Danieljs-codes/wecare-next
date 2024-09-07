@@ -353,3 +353,23 @@ export async function searchDoctors(params: SearchParams) {
 
   return results;
 }
+
+export async function getDoctorWithReviews(doctorId: string) {
+  const result = await db.query.doctors.findFirst({
+    where: eq(doctors.id, doctorId),
+    with: {
+      user: true,
+      reviews: {
+        with: {
+          patient: {
+            with: {
+              user: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return result;
+}

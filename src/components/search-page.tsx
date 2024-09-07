@@ -134,6 +134,7 @@ export function SearchPage({ doctors }: { doctors: Doctor[] }) {
           aria-label="Search Doctor by name"
           placeholder="Enter doctor's name"
           className="flex-1"
+          onClear={() => setName('')}
         />
         <Button
           onPress={() => setName(localName)}
@@ -215,8 +216,12 @@ export function SearchPage({ doctors }: { doctors: Doctor[] }) {
                 </span>
               </div>
               <Link
-                className={buttonStyles({ size: 'small', intent: 'primary' })}
-                href={`/search/${doctor.doctorId}`}
+                className={buttonStyles({
+                  size: 'small',
+                  intent: 'primary',
+                  className: 'mt-4',
+                })}
+                href={`/patient/search/${doctor.doctorId}`}
               >
                 View Profile
               </Link>
