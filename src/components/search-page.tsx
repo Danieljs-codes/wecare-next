@@ -3,7 +3,7 @@
 import { doctorStep2Schema } from '@/schemas/sign-up-schema';
 import { Doctor } from '@lib/types';
 import { Avatar } from '@ui/avatar';
-import { Button } from '@ui/button';
+import { Button, buttonStyles } from '@ui/button';
 import { Card } from '@ui/card';
 import { Menu } from '@ui/menu';
 import { NumberField } from '@ui/number-field';
@@ -20,6 +20,7 @@ import { Time } from '@internationalized/date';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { TimeValue } from '@react-types/datepicker';
 import { getUserTimezone } from '@lib/utils';
+import { Link } from '@ui/link';
 
 const sortOptions = [
   { id: 'yearsOfExperience', name: 'Years of Experience' },
@@ -35,6 +36,9 @@ export function SearchPage({ doctors }: { doctors: Doctor[] }) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // Filter state
+  const [name, setName] = useQueryState('name', {
+    shallow: false,
+  });
   const [specialization, setSpecialization] = useQueryState('specialization', {
     shallow: false,
   });
@@ -61,6 +65,7 @@ export function SearchPage({ doctors }: { doctors: Doctor[] }) {
   });
 
   // Local state for filter values
+  const [localName, setLocalName] = useState(name || '');
   const [localSpecialization, setLocalSpecialization] = useState(
     specialization || 'all'
   );
@@ -124,11 +129,17 @@ export function SearchPage({ doctors }: { doctors: Doctor[] }) {
       </div>
       <div className="mt-4 flex items-center gap-x-2">
         <SearchField
+          value={localName}
+          onChange={name => setLocalName(name)}
           aria-label="Search Doctor by name"
           placeholder="Enter doctor's name"
           className="flex-1"
         />
-        <Button size="medium" className="text-sm">
+        <Button
+          onPress={() => setName(localName)}
+          size="medium"
+          className="text-sm"
+        >
           {isMobile ? 'Search' : 'Find Doctor'}
         </Button>
       </div>
@@ -203,9 +214,12 @@ export function SearchPage({ doctors }: { doctors: Doctor[] }) {
                     .toLocaleString(DateTime.TIME_SIMPLE)}
                 </span>
               </div>
-              <Button size="small" intent="primary" className="self-end mt-2">
-                Book Appointment
-              </Button>
+              <Link
+                className={buttonStyles({ size: 'small', intent: 'primary' })}
+                href={`/search/${doctor.doctorId}`}
+              >
+                View Profile
+              </Link>
             </Card>
           ))}
         </div>
