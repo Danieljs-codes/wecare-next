@@ -20,9 +20,22 @@ import {
   reviews,
   users,
 } from '@server/db/schema';
-import { and, desc, eq, gte, isNull, lt, or, sql } from 'drizzle-orm';
+import {
+  and,
+  between,
+  desc,
+  eq,
+  gte,
+  isNull,
+  like,
+  lt,
+  lte,
+  or,
+  sql,
+} from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
+import { DateTime } from 'luxon';
 
 export const getUserAndDoctor = cache(async (userId: string) => {
   const [userAndDoctor] = await db
@@ -136,12 +149,7 @@ export async function fetchPaginatedPatients(
   return { patients: doctorPatients, totalPages, totalPatients };
 }
 
-
-
-export async function getDoctorAppointments(
-  doctorId: string,
-  date: Date
-) {
+export async function getDoctorAppointments(doctorId: string, date: Date) {
   // Ensure the input date is treated as UTC
   const startOfDayUTC = new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
@@ -223,4 +231,125 @@ export async function getUserAndPatient(userId: string) {
   }
 
   return userAndPatient;
+}
+
+export interface SearchParams {
+  specialization?: string;
+  minExperience?: number;
+  maxExperience?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  startTime?: string;
+  endTime?: string;
+  name?: string;
+  timezone?: string;
+}
+
+export async function searchDoctors(params: SearchParams) {
+  const {
+    specialization,
+    minExperience,
+    maxExperience,
+    minPrice,
+    maxPrice,
+    startTime,
+    endTime,
+    name,
+    // Most people that will use it are in Nigeria since it uses just one timezone which is `GMT +1` We can set that as the default
+    timezone = 'Africa/Lagos',
+  } = params;
+
+  let query = db
+    .select({
+      doctorId: doctors.id,
+      userId: doctors.userId,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      specialization: doctors.specialization,
+      yearsOfExperience: doctors.yearsOfExperience,
+      price: doctors.price,
+      startTime: doctors.startTime,
+      endTime: doctors.endTime,
+      timezone: doctors.timezone,
+      bio: doctors.bio,
+      avatar: users.avatar,
+    })
+    .from(doctors)
+    .innerJoin(users, eq(doctors.userId, users.id));
+
+  const conditions = [];
+
+  if (specialization && specialization !== 'all') {
+    conditions.push(eq(doctors.specialization, specialization));
+  }
+
+  if (minExperience !== undefined && maxExperience !== undefined) {
+    conditions.push(
+      between(doctors.yearsOfExperience, minExperience, maxExperience)
+    );
+  } else if (minExperience !== undefined) {
+    conditions.push(gte(doctors.yearsOfExperience, minExperience));
+  } else if (maxExperience !== undefined) {
+    conditions.push(lte(doctors.yearsOfExperience, maxExperience));
+  }
+
+  if (minPrice !== undefined && maxPrice !== undefined) {
+    conditions.push(between(doctors.price, minPrice, maxPrice));
+  } else if (minPrice !== undefined) {
+    conditions.push(gte(doctors.price, minPrice));
+  } else if (maxPrice !== undefined) {
+    conditions.push(lte(doctors.price, maxPrice));
+  }
+
+  if (startTime || endTime) {
+    let startTimeUTC, endTimeUTC;
+
+    if (startTime) {
+      startTimeUTC = DateTime.fromFormat(startTime, 'HH:mm', {
+        zone: timezone,
+      })
+        .toUTC()
+        .toFormat('HH:mm:ss');
+    }
+
+    if (endTime) {
+      endTimeUTC = DateTime.fromFormat(endTime, 'HH:mm', {
+        zone: timezone,
+      })
+        .toUTC()
+        .toFormat('HH:mm:ss');
+    }
+
+    if (startTimeUTC && endTimeUTC) {
+      conditions.push(
+        and(
+          sql`time(substr(${doctors.startTime}, 12, 8)) <= time(${startTimeUTC})`,
+          sql`time(substr(${doctors.endTime}, 12, 8)) >= time(${endTimeUTC})`
+        )
+      );
+    } else if (startTimeUTC) {
+      conditions.push(
+        sql`time(substr(${doctors.startTime}, 12, 8)) <= time(${startTimeUTC})`
+      );
+    } else if (endTimeUTC) {
+      conditions.push(
+        sql`time(substr(${doctors.endTime}, 12, 8)) <= time(${endTimeUTC})`
+      );
+    }
+  }
+
+  if (name) {
+    conditions.push(
+      or(like(users.firstName, `%${name}%`), like(users.lastName, `%${name}%`))
+    );
+  }
+
+  if (conditions.length > 0) {
+    // @ts-expect-error
+    query = query.where(and(...conditions));
+  }
+
+  const results = await query.execute();
+
+  return results;
 }

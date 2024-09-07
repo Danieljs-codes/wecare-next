@@ -138,23 +138,36 @@ export const createStep2Registration = async (data: Step2DoctorFormData) => {
   const priceInCents = Math.round(price * 100);
 
   // Convert availableHours to ISO 8601 string UTC
-  const startTime = DateTime.utc()
-    .set({
+  const startTime = DateTime.fromObject(
+    {
       hour: availableHours.startTime.hour,
       minute: availableHours.startTime.minute,
       second: 0,
       millisecond: 0,
-    })
+    },
+    { zone: timezone }
+  )
+    .toUTC()
     .toISO();
 
-  const endTime = DateTime.utc()
-    .set({
-      hour: availableHours.endTime.hour,
-      minute: availableHours.endTime.minute,
-      second: 0,
-      millisecond: 0,
-    })
-    .toISO();
+    const endTime = DateTime.fromObject(
+      {
+        hour: availableHours.endTime.hour,
+        minute: availableHours.endTime.minute,
+        second: 0,
+        millisecond: 0,
+      },
+      { zone: timezone }
+    )
+      .toUTC()
+      .toISO()
+
+  if (!startTime || !endTime) {
+    return {
+      success: false as const,
+      message: 'Invalid available hours',
+    };
+  }
 
   const registrationId = cookies().get(COOKIE_NAME)?.value;
 

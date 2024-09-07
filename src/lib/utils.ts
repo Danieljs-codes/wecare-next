@@ -6,6 +6,11 @@ import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 import { cache } from 'react';
+import {
+  createSearchParamsCache,
+  parseAsInteger,
+  parseAsString,
+} from 'nuqs/server';
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
@@ -45,6 +50,14 @@ export const getUserAndDoctor = cache(async (userId: string) => {
   };
 });
 
-
-
-
+export const searchParamsCache = createSearchParamsCache({
+  specialization: parseAsString,
+  minExperience: parseAsInteger,
+  maxExperience: parseAsInteger,
+  minPrice: parseAsInteger,
+  maxPrice: parseAsInteger,
+  startTime: parseAsString,
+  endTime: parseAsString,
+  name: parseAsString,
+  timezone: parseAsString,
+});
