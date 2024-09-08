@@ -1,5 +1,6 @@
+import { DoctorInfo } from '@components/doctor-info';
 import { getDoctorWithReviews } from '@lib/server';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 const DoctorDetails = async ({ params }: { params: { id: string } }) => {
   const doctorWithReviews = await getDoctorWithReviews(params.id);
@@ -10,8 +11,7 @@ const DoctorDetails = async ({ params }: { params: { id: string } }) => {
 
   return (
     <div>
-      <div>DoctorDetails</div>
-      <pre>{JSON.stringify(params, null, 2)}</pre>
+      <DoctorInfo doctorInfo={doctorWithReviews} />
     </div>
   );
 };

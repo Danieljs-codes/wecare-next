@@ -5,7 +5,12 @@ import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from 'next-themes';
 import { Toast } from '@ui/toast';
+import { Inter } from 'next/font/google';
 
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -19,9 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning lang="en">
-      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
+      <body className={`${inter.variable} ${GeistMono.variable} font-sans`}>
         <Providers>
-          <ThemeProvider disableTransitionOnChange attribute="class">{children}</ThemeProvider>
+          <ThemeProvider disableTransitionOnChange attribute="class">
+            {children}
+          </ThemeProvider>
           <Toast />
         </Providers>
       </body>

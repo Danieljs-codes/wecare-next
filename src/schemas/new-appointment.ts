@@ -28,3 +28,15 @@ export const newAppointmentSchema = z.object({
 });
 
 export type NewAppointmentSchema = z.infer<typeof newAppointmentSchema>;
+
+export const patientInitiatedAppointmentSchema = newAppointmentSchema
+  .omit({
+    patientId: true,
+  })
+  .extend({
+    doctorId: z.string().min(1, 'Patient ID is required'),
+  });
+
+export type PatientInitiatedAppointmentSchema = z.infer<
+  typeof patientInitiatedAppointmentSchema
+>;
