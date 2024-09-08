@@ -1,4 +1,14 @@
-import { patientInitiatedAppointmentSchema } from '@/schemas/new-appointment';
+import {
+  PatientInitiatedAppointmentSchema,
+  patientInitiatedAppointmentSchema,
+} from '@/schemas/new-appointment';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  getLocalTimeZone,
+  now,
+  parseZonedDateTime,
+  today,
+} from '@internationalized/date';
 import { Button } from '@ui/button';
 import { DatePicker } from '@ui/date-picker';
 import { Modal } from '@ui/modal';
@@ -12,17 +22,34 @@ import { Controller, useForm } from 'react-hook-form';
 interface NewAppointmentPatientModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  doctorId: string;
+  doctorLastName: string;
 }
 
 export const NewAppointmentPatientModal = ({
   isOpen,
   onOpenChange,
+  doctorId,
+  doctorLastName,
 }: NewAppointmentPatientModalProps) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<PatientInitiatedAppointmentSchema>({
+    resolver: zodResolver(patientInitiatedAppointmentSchema),
+    defaultValues: {
+      reasonForAppointment: '',
+      doctorId,
+      appointmentDuration: undefined,
+      appointmentDateTime: parseZonedDateTime(
+        now(getLocalTimeZone())
+          .add({ hours: 2 })
+          .set({ minute: 0, second: 0, millisecond: 0 })
+          .toString()
+      ),
+    },
+  });
 
   const onSubmit = (data: any) => {
     console.log(data);
@@ -50,12 +77,13 @@ export const NewAppointmentPatientModal = ({
               )}
               <div className="flex flex-col gap-4">
                 <Controller
-                  name="patientId"
+                  name="doctorId"
                   control={control}
                   render={({ field, fieldState: { error } }) => (
                     <TextField
-                      label="Patient ID"
-                      description="A 6-digit number used for identifying patients"
+                      label="Doctor ID"
+                      isDisabled
+                      description={`The unique identifier for Dr. ${doctorLastName}`}
                       descriptionClassName="text-xs sm:text-sm"
                       {...field}
                       isInvalid={!!error}
@@ -66,16 +94,14 @@ export const NewAppointmentPatientModal = ({
                 <Controller
                   name="appointmentDateTime"
                   control={control}
-                  render={({ field: { value, onChange, ref, ...field } }) => (
+                  render={({ field: { value, onChange } }) => (
                     <DatePicker
+                      minValue={today(getLocalTimeZone())}
                       label="Appointment Date"
                       hideTimeZone
                       hourCycle={12}
                       value={value}
-                      onChange={val => {
-                        console.log(val);
-                        onChange(val);
-                      }}
+                      onChange={onChange}
                     />
                   )}
                 />
@@ -136,7 +162,7 @@ export const NewAppointmentPatientModal = ({
               form="bookAppointmentForm"
               type="submit"
               className="sm:w-auto mt-0"
-              isLoading={status === 'pending'}
+              isLoading={false}
             >
               Confirm Booking
             </SubmitButton>

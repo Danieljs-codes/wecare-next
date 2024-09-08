@@ -76,7 +76,12 @@ export function DoctorInfo({ doctorInfo }: { doctorInfo: DoctorWithReviews }) {
           </div>
         </div>
       </div>
-      <NewAppointmentPatientModal isOpen={isOpen} onOpenChange={setIsOpen} />
+      <NewAppointmentPatientModal
+        doctorId={doctorInfo.id}
+        doctorLastName={doctorInfo.user.lastName}
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+      />
     </div>
   );
 }

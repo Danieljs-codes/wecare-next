@@ -1,5 +1,3 @@
-'use client';
-
 import { createAppointmentByDoctor } from '@/app/(main)/doctor/patients/action';
 import {
   NewAppointmentSchema,
@@ -48,7 +46,10 @@ export function NewAppointmentModal({
       patientId: '',
       appointmentDuration: undefined,
       appointmentDateTime: parseZonedDateTime(
-        now(getLocalTimeZone()).add({ hours: 2 }).toString()
+        now(getLocalTimeZone())
+          .add({ hours: 2 })
+          .set({ minute: 0, second: 0, millisecond: 0 })
+          .toString()
       ),
     },
   });
@@ -143,12 +144,15 @@ export function NewAppointmentModal({
                   control={control}
                   render={({ field: { value, onChange } }) => (
                     <DatePicker
-                      minValue={today(getLocalTimeZone())}
+                      // minValue={today(getLocalTimeZone())}
                       label="Appointment Date"
                       hideTimeZone
                       hourCycle={12}
                       value={value}
-                      onChange={onChange}
+                      onChange={val => {
+                        console.log(val);
+                        onChange(val);
+                      }}
                     />
                   )}
                 />
