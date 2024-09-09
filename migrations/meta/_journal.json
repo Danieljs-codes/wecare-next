@@ -8,6 +8,13 @@
       "when": 1725574255227,
       "tag": "0000_small_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1725911351382,
+      "tag": "0001_tearful_spiral",
+      "breakpoints": true
     }
   ]
 }

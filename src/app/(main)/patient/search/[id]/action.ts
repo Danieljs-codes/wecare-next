@@ -9,6 +9,7 @@ import {
   appointments,
   patientNotifications,
   payments,
+  doctorNotifications,
 } from '@server/db/schema';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
@@ -348,6 +349,7 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
   const appointmentId = nanoid();
   const notificationId = nanoid();
   const paymentId = nanoid();
+  const doctorNotificationId = nanoid();
 
   await db.batch([
     db.insert(appointments).values({
@@ -365,6 +367,21 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
     db.insert(patientNotifications).values({
       id: notificationId,
       patientId,
+      message: `Your appointment with Dr. ${
+        user.firstName
+      } is scheduled for ${DateTime.fromISO(appointmentStart, { zone: 'utc' })
+        .setZone(patient.timezone)
+        .toLocaleString(DateTime.DATETIME_FULL)}.`,
+      isRead: false,
+      type: 'appointment_created',
+      appointmentId,
+      appointmentStartTime: appointmentStart,
+      appointmentEndTime: appointmentEnd,
+    }),
+
+    db.insert(doctorNotifications).values({
+      id: doctorNotificationId,
+      doctorId,
       message: `Your appointment with Dr. ${
         user.firstName
       } is scheduled for ${DateTime.fromISO(appointmentStart, { zone: 'utc' })

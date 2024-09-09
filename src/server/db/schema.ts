@@ -113,6 +113,8 @@ export const appointments = sqliteTable(
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
     initiatedBy: text('initiatedBy', { enum: ['doctor', 'patient'] }).notNull(),
+    rescheduleCount: int('rescheduleCount').notNull().default(0),
+    lastRescheduledAt: text('lastRescheduledAt'),
   },
   appointments => ({
     appointments_patient_fkey: foreignKey({

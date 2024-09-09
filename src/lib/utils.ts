@@ -50,6 +50,8 @@ export const getUserAndDoctor = cache(async (userId: string) => {
   };
 });
 
+
+
 export const searchParamsCache = createSearchParamsCache({
   specialization: parseAsString,
   minExperience: parseAsInteger,

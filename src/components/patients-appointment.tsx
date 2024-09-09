@@ -13,10 +13,12 @@ import {
   IconSearch,
 } from 'justd-icons';
 import { EmptyState } from './empty-state';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { DateTime } from 'luxon';
 import { Badge, BadgeProps } from '@ui/badge';
 import { Menu } from '@ui/menu';
+import { useCallback } from 'react';
+import Link from 'next/link';
 
 const filterType = [
   {
@@ -52,12 +54,45 @@ function getStatusIntent(
   }
 }
 
+function getTimingIntent(date: string): BadgeProps['intent'] {
+  const now = DateTime.now();
+  const appointmentDate = DateTime.fromISO(date);
+
+  if (appointmentDate < now) {
+    return 'secondary'; // Past appointment
+  } else {
+    return 'primary'; // Future appointment
+  }
+}
+
 export const PatientAppointment = ({
   appointments,
 }: {
   appointments: PatientAppointments;
 }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  let filter = searchParams.get('filter');
+
+  if (
+    !filter ||
+    filter === '' ||
+    (filter !== 'past' && filter !== 'upcoming')
+  ) {
+    filter = 'all';
+  }
+
   return (
     <div>
       <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between">
@@ -70,15 +105,16 @@ export const PatientAppointment = ({
             </p>
           </div>
         </div>
-        <Button
-          // onPress={() => setIsOpen(true)}
-          size="small"
-          intent="primary"
-          className="w-full md:w-auto mt-4"
+        <Link
+          className={buttonStyles({
+            size: 'small',
+            className: 'w-full md:w-auto mt-4',
+          })}
+          href="/patient/search"
         >
           <IconPlus />
           Add Appointment
-        </Button>
+        </Link>
       </div>
       <div>
         <div className="flex items-center gap-x-2">
@@ -101,7 +137,15 @@ export const PatientAppointment = ({
           </Button>
         </div>
         <Select
-          className="sm:w-[250px] sm:ml-10"
+          defaultSelectedKey={filter}
+          onSelectionChange={filter =>
+            router.push(
+              '/patient/appointments' +
+                '?' +
+                createQueryString('filter', filter as string)
+            )
+          }
+          className="sm:w-[180px] sm:ml-10"
           placeholder="Filter Appointment"
         >
           <Select.Trigger />
@@ -123,15 +167,28 @@ export const PatientAppointment = ({
             <Table.Column>Doctor Name</Table.Column>
             <Table.Column>Specialization</Table.Column>
             <Table.Column>Status</Table.Column>
+            <Table.Column>Timing</Table.Column>
             <Table.Column />
           </Table.Header>
           <Table.Body
             renderEmptyState={() => (
               <EmptyState
-                title="No appointments found"
-                description="You have no appointments scheduled for today."
+                title={
+                  filter === 'past'
+                    ? 'No past appointments found'
+                    : filter === 'upcoming'
+                    ? 'No upcoming appointments found'
+                    : 'No appointments found'
+                }
+                description={
+                  filter === 'past'
+                    ? 'No past appointments found in your records.'
+                    : filter === 'upcoming'
+                    ? 'You have no upcoming appointments scheduled at this time.'
+                    : 'Your appointment history is currently empty.'
+                }
                 actionLabel="Schedule Appointment"
-                onAction={() => router.push('/doctor/appointments')}
+                onAction={() => router.push('/patient/search')}
               />
             )}
             items={appointments.appointments}
@@ -155,7 +212,14 @@ export const PatientAppointment = ({
                 <Table.Cell>{item.doctorSpecialization}</Table.Cell>
                 <Table.Cell>
                   <Badge intent={getStatusIntent(item.status)}>
-                    {item.status.replace(/^\w/, c => c.toUpperCase())}``
+                    {item.status.replace(/^\w/, c => c.toUpperCase())}
+                  </Badge>
+                </Table.Cell>
+                <Table.Cell>
+                  <Badge intent={getTimingIntent(item.appointmentStart)}>
+                    {DateTime.fromISO(item.appointmentStart) > DateTime.now()
+                      ? 'Upcoming'
+                      : 'Past'}
                   </Badge>
                 </Table.Cell>
                 <Table.Cell>
@@ -171,9 +235,27 @@ export const PatientAppointment = ({
                         placement="left"
                       >
                         <Menu.Item>View</Menu.Item>
-                        <Menu.Item>Reschedule</Menu.Item>
+                        <Menu.Item
+                          isDisabled={
+                            DateTime.fromISO(item.appointmentStart) <
+                            DateTime.now()
+                          }
+                        >
+                          Reschedule
+                        </Menu.Item>
                         <Menu.Separator />
-                        <Menu.Item isDanger>Cancel Appointment</Menu.Item>
+                        <Menu.Item
+                          isDisabled={
+                            DateTime.fromISO(item.appointmentStart) <
+                            DateTime.now()
+                          }
+                          isDanger={
+                            DateTime.fromISO(item.appointmentStart) >
+                            DateTime.now()
+                          }
+                        >
+                          Cancel Appointment
+                        </Menu.Item>
                       </Menu.Content>
                     </Menu>
                   </div>
