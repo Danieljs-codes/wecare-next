@@ -1,6 +1,8 @@
 import { SearchPage } from '@components/search-page';
 import { searchDoctors, SearchParams } from '@lib/server';
+import { getSession } from '@lib/session';
 import { searchParamsCache } from '@lib/utils';
+import { redirect } from 'next/navigation';
 
 export const runtime = 'edge';
 
@@ -9,6 +11,19 @@ export default async function Search({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
+
+  const session = await getSession();
+
+  if (!session) {
+    redirect('/sign-in');
+  }
+
+  if (session.user.role !== 'patient') {
+    redirect('/sign-in');
+  }
+
+  
+
   const parsedParams = searchParamsCache.parse(searchParams);
 
   // Convert null values to undefined to match the SearchParams type

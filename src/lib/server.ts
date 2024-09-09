@@ -373,3 +373,87 @@ export async function getDoctorWithReviews(doctorId: string) {
 
   return result;
 }
+
+export async function getPatientAppointmentsWithDoctorInfo({
+  patientId,
+  page = 1,
+  pageSize = 10,
+  filterType = 'all',
+  name = ''
+}: {
+  patientId: string;
+  page?: number;
+  pageSize?: number;
+  filterType?: 'past' | 'upcoming' | 'all';
+  name?: string;
+}) {
+  const offset = (page - 1) * pageSize;
+  const currentUtcTime = sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`;
+
+  let timeFilter;
+  switch (filterType) {
+    case 'upcoming':
+      timeFilter = gte(appointments.appointmentStart, currentUtcTime);
+      break;
+    case 'past':
+      timeFilter = lt(appointments.appointmentStart, currentUtcTime);
+      break;
+    case 'all':
+    default:
+      timeFilter = sql`1=1`; // This will always be true, effectively not applying any time filter
+  }
+
+  let nameFilter = sql`1=1`; // Default to true if no name is provided
+  if (name) {
+    // @ts-expect-error
+    nameFilter = or(
+      like(users.firstName, `%${name}%`),
+      like(users.lastName, `%${name}%`)
+    );
+  }
+
+  const patientAppointments = await db
+    .select({
+      id: appointments.id,
+      appointmentStart: appointments.appointmentStart,
+      appointmentEnd: appointments.appointmentEnd,
+      status: appointments.status,
+      reason: appointments.reason,
+      doctorId: appointments.doctorId,
+      doctorFirstName: users.firstName,
+      doctorLastName: users.lastName,
+      doctorSpecialization: doctors.specialization,
+    })
+    .from(appointments)
+    .innerJoin(doctors, eq(appointments.doctorId, doctors.id))
+    .innerJoin(users, eq(doctors.userId, users.id))
+    .where(and(
+      eq(appointments.patientId, patientId),
+      timeFilter,
+      nameFilter
+    ))
+    .orderBy(desc(appointments.appointmentStart))
+    .limit(pageSize)
+    .offset(offset);
+
+  const [{ count }] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(appointments)
+    .innerJoin(doctors, eq(appointments.doctorId, doctors.id))
+    .innerJoin(users, eq(doctors.userId, users.id))
+    .where(and(
+      eq(appointments.patientId, patientId),
+      timeFilter,
+      nameFilter
+    ));
+
+  const totalAppointments = count;
+  const totalPages = Math.ceil(totalAppointments / pageSize);
+
+  return {
+    appointments: patientAppointments,
+    totalPages,
+    totalAppointments,
+    currentPage: page,
+  };
+}
