@@ -6,7 +6,7 @@ pages_build_output_dir = ".vercel/output/static"
 
 [vars]
 BUN_VERSION = "1.1.18"
-NEXT_PUBLIC_BASE_URL="https://localhost:3000"
+NEXT_PUBLIC_BASE_URL="https://wecare-next.pages.dev"
 
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
