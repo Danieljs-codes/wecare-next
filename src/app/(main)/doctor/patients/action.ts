@@ -1,8 +1,7 @@
 'use server';
 
 import {
-  NewAppointmentSchema,
-  newAppointmentSchema,
+  newAppointmentSchema
 } from '@/schemas/new-appointment';
 import { getSession } from '@lib/session';
 import { getUserAndDoctor } from '@lib/utils';
@@ -11,8 +10,7 @@ import {
   appointments,
   doctors,
   patientNotifications,
-  patients,
-  users,
+  patients
 } from '@server/db/schema';
 import { and, eq, gte, lt } from 'drizzle-orm';
 import { DateTime } from 'luxon';

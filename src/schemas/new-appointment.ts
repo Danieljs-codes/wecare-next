@@ -18,7 +18,7 @@ export const newAppointmentSchema = z.object({
       }
     ),
   appointmentDuration: z.enum(
-    ['30', '60', '90', '120', '150', '180', '210', '240'],
+    ['30', '60', '90', '120', '150', '180'],
     {
       required_error: 'Select a duration',
       message: 'Invalid Duration',

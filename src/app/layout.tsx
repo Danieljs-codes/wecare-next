@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from '@components/providers';
-import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from 'next-themes';
 import { Toast } from '@ui/toast';

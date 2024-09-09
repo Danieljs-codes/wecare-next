@@ -1,3 +1,4 @@
+import { bookAppointment } from '@/app/(main)/patient/search/[id]/action';
 import {
   PatientInitiatedAppointmentSchema,
   patientInitiatedAppointmentSchema,
@@ -9,6 +10,7 @@ import {
   parseZonedDateTime,
   today,
 } from '@internationalized/date';
+import { useMutation } from '@tanstack/react-query';
 import { Button } from '@ui/button';
 import { DatePicker } from '@ui/date-picker';
 import { Modal } from '@ui/modal';
@@ -17,7 +19,10 @@ import { Select } from '@ui/select';
 import { SubmitButton } from '@ui/submit-button';
 import { TextField } from '@ui/text-field';
 import { Textarea } from '@ui/textarea';
+import { DateTime } from 'luxon';
+import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface NewAppointmentPatientModalProps {
   isOpen: boolean;
@@ -32,16 +37,21 @@ export const NewAppointmentPatientModal = ({
   doctorId,
   doctorLastName,
 }: NewAppointmentPatientModalProps) => {
+  const router = useRouter();
   const {
     control,
     handleSubmit,
     formState: { errors },
+    setError,
+    reset,
+    clearErrors,
   } = useForm<PatientInitiatedAppointmentSchema>({
     resolver: zodResolver(patientInitiatedAppointmentSchema),
     defaultValues: {
       reasonForAppointment: '',
       doctorId,
-      appointmentDuration: undefined,
+      // The ! is to set default value as null instead of undefined since if I set it to undefined, it will move from being an uncontrolled component to a controlled component
+      appointmentDuration: null!,
       appointmentDateTime: parseZonedDateTime(
         now(getLocalTimeZone())
           .add({ hours: 2 })
@@ -51,8 +61,63 @@ export const NewAppointmentPatientModal = ({
     },
   });
 
-  const onSubmit = (data: any) => {
+  const handleCloseModal = () => {
+    onOpenChange(false);
+    clearErrors();
+  };
+
+  const { mutate, status } = useMutation({
+    mutationKey: ['createAppointmentPatient'],
+    mutationFn: async (data: PatientInitiatedAppointmentSchema) => {
+      const { appointmentDateTime, ...rest } = data;
+      const res = await bookAppointment({
+        ...rest,
+        // I have an object I want to convert to UTC ISO 8601 string use set
+        appointmentDateTime: DateTime.fromObject(
+          {
+            year: appointmentDateTime.year,
+            month: appointmentDateTime.month,
+            day: appointmentDateTime.day,
+            hour: appointmentDateTime.hour,
+            minute: appointmentDateTime.minute,
+            second: appointmentDateTime.second,
+            millisecond: 0,
+          },
+          { zone: appointmentDateTime.timeZone }
+        )
+          .toUTC()
+          .toISO()!,
+      });
+
+
+
+      if (!res.success) {
+        throw new Error(res.error);
+      }
+
+      return res;
+    },
+
+    onError: error => {
+      setError('root', { type: 'manual', message: error.message });
+    },
+
+    onSuccess: data => {
+      console.log(data);
+      toast.success(data.message);
+      // handleCloseModal();
+      reset({
+        appointmentDuration: null!,
+        reasonForAppointment: '',
+      });
+
+      router.push(data.paymentUrl);
+    },
+  });
+
+  const onSubmit = (data: PatientInitiatedAppointmentSchema) => {
     console.log(data);
+    mutate(data);
   };
 
   return (
@@ -61,7 +126,7 @@ export const NewAppointmentPatientModal = ({
         <Modal.Content
           closeButton={false}
           isOpen={isOpen}
-          onOpenChange={onOpenChange}
+          onOpenChange={handleCloseModal}
         >
           <Modal.Header>
             <Modal.Title>Schedule New Appointment</Modal.Title>
@@ -108,12 +173,16 @@ export const NewAppointmentPatientModal = ({
                 <Controller
                   name="appointmentDuration"
                   control={control}
-                  render={({ field, fieldState: { error } }) => (
+                  render={({
+                    field: { value, onChange, ...field },
+                    fieldState: { error },
+                  }) => (
                     <Select
                       placeholder="Select duration"
                       label="Appointment Duration"
+                      selectedKey={value}
+                      onSelectionChange={onChange}
                       {...field}
-                      onSelectionChange={selected => field.onChange(selected)}
                       isInvalid={!!error}
                       errorMessage={error?.message}
                     >
@@ -151,7 +220,7 @@ export const NewAppointmentPatientModal = ({
           <Modal.Footer className="flex-col">
             <Button
               appearance="outline"
-              onPress={() => onOpenChange(false)}
+              onPress={handleCloseModal}
               size="small"
             >
               Cancel
@@ -162,7 +231,7 @@ export const NewAppointmentPatientModal = ({
               form="bookAppointmentForm"
               type="submit"
               className="sm:w-auto mt-0"
-              isLoading={false}
+              isLoading={status === 'pending'}
             >
               Confirm Booking
             </SubmitButton>
