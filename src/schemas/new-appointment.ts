@@ -40,3 +40,24 @@ export const patientInitiatedAppointmentSchema = newAppointmentSchema
 export type PatientInitiatedAppointmentSchema = z.infer<
   typeof patientInitiatedAppointmentSchema
 >;
+
+export const rescheduleAppointmentSchema = z.object({
+  appointmentId: z.string(),
+  appointmentStart: z
+  .custom<ZonedDateTime>(val => val instanceof ZonedDateTime, {
+    message: 'Invalid date and time',
+  })
+  .refine(
+    val => {
+      const currentTime = now(getLocalTimeZone());
+      const oneHourLater = currentTime.add({ hours: 1 });
+      return val.compare(oneHourLater) >= 0;
+    },
+    {
+      message: 'Appointment must be at least 1 hour from now',
+    }
+  ),
+  doctorId: z.string(),
+});
+
+export type RescheduleAppointmentSchema = z.infer<typeof rescheduleAppointmentSchema>;

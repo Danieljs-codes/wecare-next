@@ -2,10 +2,16 @@
 
 import { getSession } from '@lib/session';
 import { db } from '@server/db';
-import { appointments, doctorNotifications, doctors, users } from '@server/db/schema';
+import {
+  appointments,
+  doctorNotifications,
+  doctors,
+  users,
+} from '@server/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { nanoid } from 'nanoid';
+import { revalidatePath } from 'next/cache';
 
 export type RescheduleAppointmentSchema = {
   appointmentId: string;
@@ -86,7 +92,7 @@ export async function rescheduleAppointment({
     'utc'
   );
 
-  if (appointmentStart > DateTime.now()) {
+  if (appointmentStart < DateTime.now()) {
     return {
       error: 'Appointment has already passed',
       success: false as const,
@@ -94,8 +100,10 @@ export async function rescheduleAppointment({
   }
 
   // Check if appointment is 24 hours or less away (User cannot reschedule appointments within 24 hours)
-  const appointmentDuration = appointmentEnd.diff(appointmentStart).as('hours');
-  if (appointmentDuration > 24) {
+  const timeUntilAppointment = appointmentStart
+    .diff(DateTime.now())
+    .as('hours');
+  if (timeUntilAppointment < 24) {
     return {
       error: 'Appointment cannot be rescheduled within 24 hours',
       success: false as const,
@@ -114,15 +122,35 @@ export async function rescheduleAppointment({
   const newAppointmentStart = DateTime.fromISO(newAppointmentStartDate).setZone(
     'utc'
   );
+  const newAppointmentEnd = newAppointmentStart.plus({
+    minutes: appointmentEnd.diff(appointmentStart).as('minutes'),
+  });
 
-  // Validate the patient rescheduled for at least 1 hour after the original appointment
-  if (newAppointmentStart < appointmentStart.plus({ hours: 1 })) {
+  // Check for overlapping appointments
+  const overlappingAppointment = await db.query.appointments.findFirst({
+    where: sql`
+      ${eq(appointments.doctorId, doctorId)}
+      AND ${appointments.id} != ${appointmentId}
+      AND ${appointments.appointmentStart} < ${newAppointmentEnd.toISO()}
+      AND ${appointments.appointmentEnd} > ${newAppointmentStart.toISO()}
+    `,
+  });
+
+  if (overlappingAppointment) {
     return {
-      error:
-        'Appointment cannot be rescheduled for less than 1 hour after the original appointment',
+      error: 'The selected time overlaps with an existing appointment',
       success: false as const,
     };
   }
+
+  // Validate the patient rescheduled for at least 1 hour after the original appointment
+  // if (newAppointmentStart < appointmentStart.plus({ hours: 1 })) {
+  //   return {
+  //     error:
+  //       'Appointment cannot be rescheduled for less than 1 hour after the original appointment',
+  //     success: false as const,
+  //   };
+  // }
 
   // Validate the doctor doesn't have an appointment scheduled for the new appointment start time
   // Validate if appointmentDateTime falls into doctor's working hours
@@ -179,17 +207,21 @@ export async function rescheduleAppointment({
   const doctorNotificationId = nanoid();
 
   await db.batch([
-    db.update(appointments).set({
-      rescheduleCount: appointment.rescheduleCount + 1,
-      appointmentStart: newAppointmentStart.toISO()!,
-      updatedAt: sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`,
-    }),
+    db
+      .update(appointments)
+      .set({
+        rescheduleCount: appointment.rescheduleCount + 1,
+        appointmentStart: newAppointmentStart.toISO()!,
+        appointmentEnd: newAppointmentEnd.toISO()!,
+        updatedAt: sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`,
+      })
+      .where(eq(appointments.id, appointmentId)),
 
     db.insert(doctorNotifications).values({
       id: doctorNotificationId,
       doctorId,
-      message: `Your appointment with Dr. ${
-        user.firstName
+      message: `Your appointment with ${user.firstName} ${
+        user.lastName
       } has been rescheduled for ${DateTime.fromISO(
         newAppointmentStart.toISO()!,
         { zone: 'utc' }
@@ -204,5 +236,6 @@ export async function rescheduleAppointment({
     }),
   ]);
 
+  revalidatePath('/patient/appointments');
   return { success: true as const };
 }

@@ -11,14 +11,29 @@ import {
   IconDotsVertical,
   IconPlus,
   IconSearch,
+  IconChevronLeft,
+  IconChevronRight,
 } from 'justd-icons';
 import { EmptyState } from './empty-state';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DateTime } from 'luxon';
 import { Badge, BadgeProps } from '@ui/badge';
 import { Menu } from '@ui/menu';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
+import { useMediaQuery } from '@ui/primitive';
+import { RescheduleAppointmentModal } from './reschedule-appointment-modal';
+
+interface Appointment {
+  id: string
+  appointmentStart: string
+  appointmentEnd: string
+  doctorFirstName: string
+  doctorLastName: string
+  doctorSpecialization: string
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show'
+  doctorId: string
+}
 
 const filterType = [
   {
@@ -70,8 +85,15 @@ export const PatientAppointment = ({
 }: {
   appointments: PatientAppointments;
 }) => {
+  const {currentPage, totalAppointments, totalPages} = appointments;
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [name, setName] = useState(searchParams.get('name') ?? '');
+  const isMobile = useMediaQuery('(max-width: 500px)');
+  const startIndex = (currentPage - 1) * 10 + 1;
+  const endIndex = Math.min(currentPage * 10, totalAppointments);
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -92,6 +114,20 @@ export const PatientAppointment = ({
   ) {
     filter = 'all';
   }
+
+  const handlePageChange = (newPage: number) => {
+    router.push(
+      `/patient/appointments?${createQueryString('page', newPage.toString())}`,
+      {
+        scroll: false,
+      }
+    );
+  };
+
+  const handleReschedule = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setIsRescheduleModalOpen(true);
+  };
 
   return (
     <div>
@@ -131,8 +167,26 @@ export const PatientAppointment = ({
       </div>
       <div className="flex flex-col sm:flex-row gap-2 my-4">
         <div className="flex items-center flex-grow gap-x-1 sm:gap-x-2">
-          <SearchField className="flex-1" />
-          <Button className="size-10" size="square-petite">
+          <SearchField
+            placeholder="Search appointments by doctor's name"
+            className="flex-1"
+            value={name}
+            onChange={setName}
+            onClear={() =>
+              router.push(
+                '/patient/appointments' + '?' + createQueryString('name', '')
+              )
+            }
+          />
+          <Button
+            onPress={() =>
+              router.push(
+                '/patient/appointments' + '?' + createQueryString('name', name.toLowerCase())
+              )
+            }
+            className="size-10"
+            size="square-petite"
+          >
             <IconSearch />
           </Button>
         </div>
@@ -240,6 +294,7 @@ export const PatientAppointment = ({
                             DateTime.fromISO(item.appointmentStart) <
                             DateTime.now()
                           }
+                          onAction={() => handleReschedule(item)}
                         >
                           Reschedule
                         </Menu.Item>
@@ -265,6 +320,43 @@ export const PatientAppointment = ({
           </Table.Body>
         </Table>
       </Card>
+      <div className="mt-4 py-2">
+        <div className="flex items-center space-x-2 justify-between">
+          <Button
+            size={isMobile ? 'extra-small' : 'small'}
+            intent="secondary"
+            onPress={() => handlePageChange(currentPage - 1)}
+            isDisabled={currentPage === 1}
+          >
+            <IconChevronLeft />
+            Previous
+          </Button>
+          <p className="text-xs sm:text-sm text-muted-fg">
+            {isMobile
+              ? `${startIndex}-${endIndex} of ${totalAppointments}`
+              : `Showing ${startIndex} to ${endIndex} of ${totalAppointments} results`}
+          </p>
+          <Button
+            size={isMobile ? 'extra-small' : 'small'}
+            intent="secondary"
+            onPress={() => handlePageChange(currentPage + 1)}
+            isDisabled={currentPage === totalPages}
+          >
+            Next
+            <IconChevronRight />
+          </Button>
+        </div>
+      </div>
+      
+      {selectedAppointment && (
+        <RescheduleAppointmentModal
+          isOpen={isRescheduleModalOpen}
+          onOpenChange={setIsRescheduleModalOpen}
+          appointmentId={selectedAppointment.id}
+          doctorId={selectedAppointment.doctorId}
+          currentAppointmentStart={selectedAppointment.appointmentStart}
+        />
+      )}
     </div>
   );
 };

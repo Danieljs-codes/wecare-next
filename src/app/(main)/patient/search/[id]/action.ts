@@ -11,7 +11,7 @@ import {
   payments,
   doctorNotifications,
 } from '@server/db/schema';
-import { eq, and, gte, lte } from 'drizzle-orm';
+import { eq, and, gte, lte, or, gt, lt } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { DateTime } from 'luxon';
@@ -227,8 +227,20 @@ export const bookAppointment = async (
   const overlappingAppointment = await db.query.appointments.findFirst({
     where: and(
       eq(appointments.doctorId, doctorId),
-      gte(appointments.appointmentStart, appointmentStartIso),
-      lte(appointments.appointmentStart, appointmentEndIso)
+      or(
+        and(
+          lte(appointments.appointmentStart, appointmentStartIso),
+          gt(appointments.appointmentEnd, appointmentStartIso)
+        ),
+        and(
+          lt(appointments.appointmentStart, appointmentEndIso),
+          gte(appointments.appointmentEnd, appointmentEndIso)
+        ),
+        and(
+          gte(appointments.appointmentStart, appointmentStartIso),
+          lte(appointments.appointmentEnd, appointmentEndIso)
+        )
+      )
     ),
   });
 
