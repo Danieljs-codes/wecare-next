@@ -185,7 +185,6 @@ export async function getDoctorAppointments(doctorId: string, date: Date) {
       patientGender: patients.gender,
       patientBirthDate: patients.birthDate,
       patientMobileNumber: patients.mobileNumber,
-      paymentStatus: payments.status,
       paymentAmount: payments.amount,
     })
     .from(appointments)
@@ -379,7 +378,7 @@ export async function getPatientAppointmentsWithDoctorInfo({
   page = 1,
   pageSize = 10,
   filterType = 'all',
-  name = ''
+  name = '',
 }: {
   patientId: string;
   page?: number;
@@ -427,11 +426,7 @@ export async function getPatientAppointmentsWithDoctorInfo({
     .from(appointments)
     .innerJoin(doctors, eq(appointments.doctorId, doctors.id))
     .innerJoin(users, eq(doctors.userId, users.id))
-    .where(and(
-      eq(appointments.patientId, patientId),
-      timeFilter,
-      nameFilter
-    ))
+    .where(and(eq(appointments.patientId, patientId), timeFilter, nameFilter))
     .orderBy(desc(appointments.appointmentStart))
     .limit(pageSize)
     .offset(offset);
@@ -441,11 +436,7 @@ export async function getPatientAppointmentsWithDoctorInfo({
     .from(appointments)
     .innerJoin(doctors, eq(appointments.doctorId, doctors.id))
     .innerJoin(users, eq(doctors.userId, users.id))
-    .where(and(
-      eq(appointments.patientId, patientId),
-      timeFilter,
-      nameFilter
-    ));
+    .where(and(eq(appointments.patientId, patientId), timeFilter, nameFilter));
 
   const totalAppointments = count;
   const totalPages = Math.ceil(totalAppointments / pageSize);
