@@ -410,6 +410,7 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
       id: paymentId,
       appointmentId,
       amount: session.amount_total ?? 0,
+      stripePaymentIntentId: session.payment_intent as string,
     }),
   ]);
 

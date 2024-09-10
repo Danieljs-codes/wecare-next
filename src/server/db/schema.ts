@@ -147,11 +147,9 @@ export const payments = sqliteTable(
     id: text('id').notNull().primaryKey(),
     appointmentId: text('appointmentId').notNull(),
     amount: int('amount').notNull(),
-    status: text('status', {
-      enum: ['pending', 'completed', 'failed', 'refunded'],
-    })
-      .notNull()
-      .default('pending'),
+    refundAmount: int('refundAmount'),
+    refundId: text('refundId'),
+    stripePaymentIntentId: text('stripe_payment_intent_id').notNull(),
     createdAt: text('createdAt')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),

@@ -23,16 +23,17 @@ import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useMediaQuery } from '@ui/primitive';
 import { RescheduleAppointmentModal } from './reschedule-appointment-modal';
+import { CancelAppointmentModal } from './cancel-appointment-modal';
 
 interface Appointment {
-  id: string
-  appointmentStart: string
-  appointmentEnd: string
-  doctorFirstName: string
-  doctorLastName: string
-  doctorSpecialization: string
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show'
-  doctorId: string
+  id: string;
+  appointmentStart: string;
+  appointmentEnd: string;
+  doctorFirstName: string;
+  doctorLastName: string;
+  doctorSpecialization: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+  doctorId: string;
 }
 
 const filterType = [
@@ -85,7 +86,7 @@ export const PatientAppointment = ({
 }: {
   appointments: PatientAppointments;
 }) => {
-  const {currentPage, totalAppointments, totalPages} = appointments;
+  const { currentPage, totalAppointments, totalPages } = appointments;
   const router = useRouter();
   const searchParams = useSearchParams();
   const [name, setName] = useState(searchParams.get('name') ?? '');
@@ -93,7 +94,9 @@ export const PatientAppointment = ({
   const startIndex = (currentPage - 1) * 10 + 1;
   const endIndex = Math.min(currentPage * 10, totalAppointments);
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -122,6 +125,11 @@ export const PatientAppointment = ({
         scroll: false,
       }
     );
+  };
+
+  const handleCancel = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setIsCancelModalOpen(true);
   };
 
   const handleReschedule = (appointment: Appointment) => {
@@ -181,7 +189,9 @@ export const PatientAppointment = ({
           <Button
             onPress={() =>
               router.push(
-                '/patient/appointments' + '?' + createQueryString('name', name.toLowerCase())
+                '/patient/appointments' +
+                  '?' +
+                  createQueryString('name', name.toLowerCase())
               )
             }
             className="size-10"
@@ -308,6 +318,7 @@ export const PatientAppointment = ({
                             DateTime.fromISO(item.appointmentStart) >
                             DateTime.now()
                           }
+                          onAction={() => handleCancel(item)}
                         >
                           Cancel Appointment
                         </Menu.Item>
@@ -347,7 +358,7 @@ export const PatientAppointment = ({
           </Button>
         </div>
       </div>
-      
+
       {selectedAppointment && (
         <RescheduleAppointmentModal
           isOpen={isRescheduleModalOpen}
@@ -355,6 +366,14 @@ export const PatientAppointment = ({
           appointmentId={selectedAppointment.id}
           doctorId={selectedAppointment.doctorId}
           currentAppointmentStart={selectedAppointment.appointmentStart}
+        />
+      )}
+
+      {selectedAppointment && (
+        <CancelAppointmentModal
+          isOpen={isCancelModalOpen}
+          onOpenChange={setIsCancelModalOpen}
+          appointmentId={selectedAppointment.id}
         />
       )}
     </div>
