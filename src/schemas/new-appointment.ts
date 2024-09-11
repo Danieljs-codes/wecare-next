@@ -67,11 +67,16 @@ export const doctorSettingsSchema = z.object({
   email: z.string().email('Invalid email address'),
   price: z
     .number({
-      invalid_type_error: 'Please choose a valid price',
+      invalid_type_error: 'Please enter a valid numeric price',
     })
-    .positive('Price must be positive'),
+    .positive('Price must be a positive number')
+    .min(1, 'Price must be at least $1. Please enter a value of $1 or more'),
   specialization: z.string().min(1, 'Specialization is required'),
-  country: z.string().min(1, 'Country is required'),
+  country: z
+    .string({
+      invalid_type_error: 'Invalid country',
+    })
+    .min(1, 'Country is required'),
   timezone: z.string().min(1, 'Timezone is required'),
   bio: z.string().min(10, 'Bio must be at least 10 characters'),
 });

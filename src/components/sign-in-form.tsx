@@ -81,6 +81,7 @@ export function SignInForm() {
           </div>
         )}
         <form
+          method='POST'
           onSubmit={handleSubmit(onSubmit)}
           className={cn('mt-8', error.length > 0 && 'mt-4')}
         >

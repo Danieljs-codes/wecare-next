@@ -24,6 +24,7 @@ import {
   type ValidationResult,
 } from 'react-aria-components';
 import { tv } from 'tailwind-variants';
+import {AnimatePresence, motion} from 'framer-motion'
 
 const numberFieldStyles = tv({
   slots: {
@@ -95,7 +96,18 @@ const NumberField = forwardRef<HTMLDivElement, NumberFieldProps>(
           )}
         </FieldGroup>
         {description && <Description className='text-sm'>{description}</Description>}
-        <FieldError>{errorMessage}</FieldError>
+        <AnimatePresence>
+          {errorMessage && (
+            <motion.div
+              initial={{ opacity: 0, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, filter: 'blur(4px)' }}
+              transition={{ duration: 0.3 }}
+            >
+              <FieldError>{errorMessage}</FieldError>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </NumberFieldPrimitive>
     );
   },

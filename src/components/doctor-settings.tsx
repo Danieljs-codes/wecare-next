@@ -17,7 +17,7 @@ import { Select } from '@ui/select';
 import { doctorStep2Schema } from '@/schemas/sign-up-schema';
 import { ComboBox } from '@ui/combo-box';
 import { countries } from '@lib/processed-countries';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Textarea } from '@ui/textarea';
 import { z } from 'zod';
 import { Controller, useForm } from 'react-hook-form';
@@ -146,16 +146,10 @@ export const DoctorSettings = ({ doctorInfo }: DoctorSettingsProps) => {
     });
   };
 
-  // Add this useEffect hook to log errors
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      console.log('Form errors:', errors);
-    }
-  }, [errors]);
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form method='POST' onSubmit={handleSubmit(onSubmit)}>
         <div>
           <h1 className="text-2xl font-bold text-fg mb-1">Settings</h1>
           <p className="text-sm text-muted-fg">Manage your account settings.</p>

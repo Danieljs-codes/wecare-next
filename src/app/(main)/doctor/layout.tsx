@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { DoctorLayout as DoctorDashboardLayout } from '@components/doctor-layout';
 import { db } from '@server/db';
-import { doctors, users } from '@server/db/schema';
+import { doctorNotifications, doctors, users } from '@server/db/schema';
 import { getSession } from '@lib/session';
 import { redirect } from 'next/navigation';
 import { eq } from 'drizzle-orm';
@@ -18,11 +18,18 @@ const DoctorLayout = async ({ children }: { children: ReactNode }) => {
 
   const userAndDoctor = await getUserAndDoctor(session.userId);
 
+  // Fetch all doctor notifications
+  const notifications = await db.query.doctorNotifications.findMany({
+    where: eq(doctorNotifications.doctorId, userAndDoctor.doctorId),
+    orderBy: (doctors, { desc }) => [desc(doctors.createdAt)],
+  });
+
   return (
     <div>
       <DoctorDashboardLayout
         avatar={userAndDoctor.avatar}
         name={`${userAndDoctor.firstName} ${userAndDoctor.lastName}`}
+        notifications={notifications}
       >
         {children}
       </DoctorDashboardLayout>

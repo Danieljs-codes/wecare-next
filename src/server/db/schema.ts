@@ -247,7 +247,7 @@ export const doctorNotifications = sqliteTable(
     doctorId: text('doctorId').notNull(),
     message: text('message').notNull(),
     isRead: int('isRead', { mode: 'boolean' }).notNull(),
-    type: text('type').notNull(),
+    type: text('type', { enum: ['general', 'refund'] }).notNull(),
     appointmentId: text('appointmentId'),
     appointmentStartTime: text('appointmentStartTime'),
     appointmentEndTime: text('appointmentEndTime'),

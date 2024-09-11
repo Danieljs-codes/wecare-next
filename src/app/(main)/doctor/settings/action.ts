@@ -15,8 +15,6 @@ const doctorSettingsSchemaExtended = doctorSettingsSchema.extend({
 export const updateDoctorSettings = async (
   input: z.infer<typeof doctorSettingsSchemaExtended>
 ) => {
-  // Simulate a 5s delay
-  await new Promise(resolve => setTimeout(resolve, 5000));
   const data = doctorSettingsSchemaExtended.safeParse(input);
 
   if (!data.success) {
@@ -69,7 +67,7 @@ export const updateDoctorSettings = async (
       .update(doctors)
       .set({
         bio: rest.bio,
-        price: rest.price,
+        price: rest.price * 100,
         specialization: rest.specialization,
         timezone: rest.timezone,
         country: rest.country,

@@ -239,7 +239,7 @@ export async function rescheduleAppointment({
         .setZone(patient.timezone)
         .toLocaleString(DateTime.DATETIME_FULL)}.`,
       isRead: false,
-      type: 'appointment_rescheduled',
+      type: 'general',
       appointmentId,
       appointmentStartTime: newAppointmentStart.toISO()!,
       appointmentEndTime: appointmentEnd.toISO()!,
@@ -382,7 +382,7 @@ export async function cancelAppointment(appointmentId: string) {
           'h:mm a'
         )} has been cancelled by the patient.`,
         isRead: false,
-        type: 'appointment_cancelled',
+        type: 'general',
         appointmentId,
         appointmentStartTime: appointment.appointmentStart,
         appointmentEndTime: appointment.appointmentEnd,

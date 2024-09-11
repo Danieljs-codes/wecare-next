@@ -123,6 +123,7 @@ export const RescheduleAppointmentModal = ({
         </Modal.Header>
         <Modal.Body>
           <form
+            method='POST'
             id="rescheduleAppointmentForm"
             onSubmit={handleSubmit(onSubmit)}
           >

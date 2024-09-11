@@ -62,7 +62,7 @@ export const Step2DoctorForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form method='POST' onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-4">
         <Controller
           name="specialization"

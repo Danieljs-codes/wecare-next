@@ -28,10 +28,12 @@ import { useTheme } from 'next-themes';
 import { logout } from '@/app/(auth)/action';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { NotificationsSheet } from './notifications-sheet';
+import { DoctorNotifications } from '@lib/types';
 
 const asideItems = [
   { icon: IconDashboard, href: '/doctor/dashboard', label: 'Overview' },
-  {icon: IconContacts , href: '/doctor/profile', label: 'Profile'},
+  { icon: IconContacts, href: '/doctor/profile', label: 'Profile' },
   { icon: IconAccessible, href: '/doctor/patients', label: 'Patients' },
   { icon: IconCalendar2, href: '/doctor/appointments', label: 'Appointments' },
   { icon: IconSettings, href: '/doctor/settings', label: 'Settings' },
@@ -56,9 +58,15 @@ interface DoctorLayoutProps {
   children: ReactNode;
   name: string;
   avatar: string;
+  notifications: DoctorNotifications[];
 }
 
-export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
+export function DoctorLayout({
+  children,
+  avatar,
+  name,
+  notifications,
+}: DoctorLayoutProps) {
   const pathname = usePathname();
   const { setTheme, theme } = useTheme();
   const router = useRouter();
@@ -85,6 +93,10 @@ export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
     return item;
   });
 
+  const openNotifications = () => {
+    router.push('?notifications=open');
+  };
+
   return (
     <div>
       <Aside.Layout
@@ -97,6 +109,7 @@ export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
                 appearance="plain"
                 shape="circle"
                 size="square-petite"
+                onPress={label === 'Inbox' ? openNotifications : undefined}
               >
                 <Icon />
               </Button>
@@ -197,6 +210,7 @@ export function DoctorLayout({ children, avatar, name }: DoctorLayoutProps) {
       >
         <main className="relative">{children}</main>
       </Aside.Layout>
+      <NotificationsSheet notifications={notifications} />
     </div>
   );
 }

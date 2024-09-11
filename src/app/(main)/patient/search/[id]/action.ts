@@ -264,7 +264,7 @@ export const bookAppointment = async (
           product_data: {
             name: 'Doctor Appointment',
             description: `Appointment with Dr. ${doctor.user.firstName} ${doctor.user.lastName}`,
-            images: [doctor.user.avatar],
+            // images: [doctor.user.avatar],
           },
           unit_amount: Math.round(
             (doctor.price / 60) * appointmentDurationNumber
@@ -419,11 +419,19 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
     db.insert(patientNotifications).values({
       id: notificationId,
       patientId,
-      message: `Your appointment with Dr. ${
-        user.firstName
-      } is scheduled for ${DateTime.fromISO(appointmentStart, { zone: 'utc' })
-        .setZone(patient.timezone)
-        .toLocaleString(DateTime.DATETIME_FULL)}.`,
+      message: `Your appointment with Dr. ${user.firstName} is scheduled for ${
+        DateTime.fromISO(appointmentStart, { zone: 'utc' })
+          .setZone(patient.timezone)
+          .toLocaleString({
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'short'
+          })
+      }.`,
       isRead: false,
       type: 'appointment_created',
       appointmentId,
@@ -440,7 +448,7 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
         .setZone(patient.timezone)
         .toLocaleString(DateTime.DATETIME_FULL)}.`,
       isRead: false,
-      type: 'appointment_created',
+      type: 'general',
       appointmentId,
       appointmentStartTime: appointmentStart,
       appointmentEndTime: appointmentEnd,

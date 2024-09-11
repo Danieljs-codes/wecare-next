@@ -80,7 +80,7 @@ export function Step2PatientForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} className="w-full">
+    <form method="POST" onSubmit={onSubmit} className="w-full">
       {errors.root && <Note intent="danger">{errors.root.message}</Note>}
       <div className="space-y-4">
         <Controller

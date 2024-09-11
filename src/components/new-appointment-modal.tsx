@@ -120,7 +120,7 @@ export function NewAppointmentModal({
             </Modal.Description>
           </Modal.Header>
           <Modal.Body>
-            <form id="bookAppointmentForm" onSubmit={handleSubmit(onSubmit)}>
+            <form method='POST' id="bookAppointmentForm" onSubmit={handleSubmit(onSubmit)}>
               {errors.root && (
                 <Note intent="danger">{errors.root.message}</Note>
               )}
