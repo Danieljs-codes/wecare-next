@@ -28,9 +28,10 @@ export function NotificationsSheet({
         isOpen={isOpen}
         onOpenChange={handleClose}
         side="right"
-        isStack={false}
+        isStack={true}
+        isBlurred
       >
-        <Sheet.Header>
+        <Sheet.Header className="border-b border-border mb-2">
           <Sheet.Title className="text-lg sm:text-xl font-semibold">
             Notifications
           </Sheet.Title>

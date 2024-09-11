@@ -356,6 +356,27 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
     reasonForAppointment: string;
   };
 
+  const doctor = await db.query.doctors.findFirst({
+    where: eq(doctors.id, doctorId),
+    with: {
+      user: {
+        columns: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  if (!doctor) {
+    return {
+      error: 'Doctor not found',
+    };
+  }
+
   if (patient.id !== patientId) {
     return {
       error: 'Patient ID mismatch. Please try again.',
@@ -419,7 +440,7 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
     db.insert(patientNotifications).values({
       id: notificationId,
       patientId,
-      message: `Your appointment with Dr. ${user.firstName} is scheduled for ${
+      message: `Your appointment with Dr. ${doctor.user.firstName} is scheduled for ${
         DateTime.fromISO(appointmentStart, { zone: 'utc' })
           .setZone(patient.timezone)
           .toLocaleString({
@@ -442,11 +463,19 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
     db.insert(doctorNotifications).values({
       id: doctorNotificationId,
       doctorId,
-      message: `Your appointment with Dr. ${
-        user.firstName
-      } is scheduled for ${DateTime.fromISO(appointmentStart, { zone: 'utc' })
-        .setZone(patient.timezone)
-        .toLocaleString(DateTime.DATETIME_FULL)}.`,
+      message: `New appointment scheduled with ${user.firstName} ${user.lastName} for ${
+        DateTime.fromISO(appointmentStart, { zone: 'utc' })
+          .setZone(doctor.timezone)
+          .toLocaleString({
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'short'
+          })
+      }.`,
       isRead: false,
       type: 'general',
       appointmentId,
