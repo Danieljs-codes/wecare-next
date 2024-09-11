@@ -17,9 +17,71 @@ import { countries, Country } from '@lib/processed-countries';
 import { useState } from 'react';
 import { getUserTimezone } from '@lib/utils';
 import { Textarea } from '@ui/textarea';
+import { z } from 'zod';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-export const DoctorSettings = () => {
+interface DoctorInfo {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  specialization: string;
+  yearsOfExperience: number;
+  startTime: string;
+  endTime: string;
+  timezone: string;
+  bio: string;
+  price: number;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    role: 'patient' | 'doctor';
+    email: string;
+    password: string;
+    avatar: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+interface DoctorSettingsProps {
+  doctorInfo: DoctorInfo;
+}
+
+const doctorSettingsSchema = z.object({
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  price: z.number().positive('Price must be positive'),
+  specialization: z.string().min(1, 'Specialization is required'),
+  country: z.string().min(1, 'Country is required'),
+  timezone: z.string().min(1, 'Timezone is required'),
+  bio: z.string().min(10, 'Bio must be at least 10 characters'),
+});
+
+type DoctorSettingsFormData = z.infer<typeof doctorSettingsSchema>;
+
+export const DoctorSettings = ({ doctorInfo }: DoctorSettingsProps) => {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<DoctorSettingsFormData>({
+    resolver: zodResolver(doctorSettingsSchema),
+    defaultValues: {
+      firstName: doctorInfo.user.firstName,
+      lastName: doctorInfo.user.lastName,
+      email: doctorInfo.user.email,
+      price: doctorInfo.price / 100,
+      specialization: doctorInfo.specialization,
+      country: '', // We'll need to set this based on the timezone
+      timezone: doctorInfo.timezone,
+      bio: doctorInfo.bio,
+    },
+  });
 
   // Convert countries object to an array
   const countryList = Object.values(countries);
@@ -45,19 +107,65 @@ export const DoctorSettings = () => {
       </div>
       <Separator className="mt-5 my-4" />
       <div className="space-y-5">
-        <TextField label="First Name" placeholder="Enter your first name" />
-        <TextField label="Last Name" placeholder="Enter your last name" />
+        <Controller
+          name="firstName"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              label="First Name"
+              placeholder="Enter your first name"
+              {...field}
+              isInvalid={!!errors.firstName}
+              errorMessage={errors.firstName?.message}
+            />
+          )}
+        />
+        <Controller
+          name="lastName"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              label="Last Name"
+              placeholder="Enter your last name"
+              {...field}
+              isInvalid={!!errors.lastName}
+              errorMessage={errors.lastName?.message}
+            />
+          )}
+        />
       </div>
       <Separator className="my-5" />
       <div className="space-y-5">
-        <TextField label="Email" placeholder="Enter your email address" />
-        <NumberField
-          label="Price"
-          placeholder="Enter your price"
-          formatOptions={{
-            style: 'currency',
-            currency: 'USD',
-          }}
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              label="Email"
+              placeholder="Enter your email address"
+              {...field}
+              isInvalid={!!errors.email}
+              errorMessage={errors.email?.message}
+            />
+          )}
+        />
+
+        <Controller
+          name="price"
+          control={control}
+          render={({ field }) => (
+            <NumberField
+              label="Price"
+              placeholder="Enter your price"
+              formatOptions={{
+                style: 'currency',
+                currency: 'USD',
+              }}
+              {...field}
+              isInvalid={!!errors.price}
+              errorMessage={errors.price?.message}
+            />
+          )}
         />
       </div>
       <Separator className="my-5" />
@@ -83,7 +191,7 @@ export const DoctorSettings = () => {
         </div>
         <div>
           <Avatar
-            src="https://i.pravatar.cc/150?u=PR83Cabw0pxOU8_g5m7iU"
+            src={doctorInfo.user.avatar}
             initials="PR"
             className="size-16 mb-5"
           />
@@ -118,25 +226,39 @@ export const DoctorSettings = () => {
       </div>
       <Separator className="my-5" />
       <div>
-        <Select placeholder="Select a specialization" label="Specialization">
-          <Select.Trigger />
-          <Select.List
-            items={doctorStep2Schema.shape.specialization.options.map(item => ({
-              id: item,
-              name: item,
-            }))}
-          >
-            {item => (
-              <Select.Option
-                className={'text-sm'}
-                id={item.id}
-                textValue={item.name}
+        <Controller
+          name="specialization"
+          control={control}
+          render={({ field: { onChange, value, ...field } }) => (
+            <Select
+              placeholder="Select a specialization"
+              label="Specialization"
+              selectedKey={value}
+              onSelectionChange={onChange}
+              {...field}
+            >
+              <Select.Trigger />
+              <Select.List
+                items={doctorStep2Schema.shape.specialization.options.map(
+                  item => ({
+                    id: item,
+                    name: item,
+                  })
+                )}
               >
-                {item.name}
-              </Select.Option>
-            )}
-          </Select.List>
-        </Select>
+                {item => (
+                  <Select.Option
+                    className={'text-sm'}
+                    id={item.id}
+                    textValue={item.name}
+                  >
+                    {item.name}
+                  </Select.Option>
+                )}
+              </Select.List>
+            </Select>
+          )}
+        />
       </div>
       <Separator className="my-5" />
       <div>
@@ -181,10 +303,19 @@ export const DoctorSettings = () => {
       <div>
         <h3 className="text-sm font-semibold">Bio</h3>
         <p className="text-sm text-muted-fg">Write a short introduction</p>
-        <Textarea
-          className="mt-2"
-          placeholder="Write a short introduction"
-          rows={5}
+        <Controller
+          name="bio"
+          control={control}
+          render={({ field }) => (
+            <Textarea
+              className="mt-2"
+              placeholder="Write a short introduction"
+              rows={3}
+              {...field}
+              isInvalid={!!errors.bio}
+              errorMessage={errors.bio?.message}
+            />
+          )}
         />
       </div>
     </div>
