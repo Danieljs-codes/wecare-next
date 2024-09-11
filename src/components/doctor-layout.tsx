@@ -30,6 +30,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { NotificationsSheet } from './notifications-sheet';
 import { DoctorNotifications } from '@lib/types';
+import { useCallback, useMemo } from 'react';
 
 const asideItems = [
   { icon: IconDashboard, href: '/doctor/dashboard', label: 'Overview' },
@@ -37,29 +38,12 @@ const asideItems = [
   { icon: IconAccessible, href: '/doctor/patients', label: 'Patients' },
   { icon: IconCalendar2, href: '/doctor/appointments', label: 'Appointments' },
   { icon: IconSettings, href: '/doctor/settings', label: 'Settings' },
-];
+] as const;
 
 const navbarButtons = [
-  { icon: IconBell, label: 'Inbox' },
+  { icon: IconBell, label: 'Inbox', action: 'openNotifications' },
   { icon: IconSearch, label: 'Search' },
-];
-
-const menuItems = [
-  { icon: IconHome, href: '/doctor/dashboard', label: 'Home' },
-  { icon: IconCirclePerson, label: 'Profile' },
-  { icon: IconSupport, label: 'Contact Support' },
-  { type: 'separator' },
-  { icon: IconMoon, label: 'Toggle theme', onAction: () => {} }, // Placeholder for theme toggle
-  { icon: IconLogout, label: 'Log out', onAction: () => {} }, // Add onAction placeholder
-  { icon: IconFolderDelete, label: 'Delete account', intent: 'danger' },
-];
-
-interface DoctorLayoutProps {
-  children: ReactNode;
-  name: string;
-  avatar: string;
-  notifications: DoctorNotifications[];
-}
+] as const;
 
 export function DoctorLayout({
   children,
@@ -71,45 +55,42 @@ export function DoctorLayout({
   const { setTheme, theme } = useTheme();
   const router = useRouter();
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+  const toggleTheme = useCallback(() => setTheme(theme === 'light' ? 'dark' : 'light'), [setTheme, theme]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     const result = await logout();
     if (result.success) {
       toast.success(result.message);
       router.push('/sign-in');
     }
-  };
+  }, [router]);
 
-  const updatedMenuItems = menuItems.map(item => {
-    if (item.label === 'Toggle theme') {
-      return { ...item, onAction: toggleTheme };
-    }
-    if (item.label === 'Log out') {
-      return { ...item, onAction: handleLogout };
-    }
-    return item;
-  });
+  const menuItems = useMemo(() => [
+    { icon: IconHome, href: '/doctor/dashboard', label: 'Home' },
+    { icon: IconCirclePerson, label: 'Profile' },
+    { icon: IconSupport, label: 'Contact Support' },
+    { type: 'separator' as const },
+    { icon: IconMoon, label: 'Toggle theme', onAction: toggleTheme },
+    { icon: IconLogout, label: 'Log out', onAction: handleLogout },
+    { icon: IconFolderDelete, label: 'Delete account', intent: 'danger' as const },
+  ], [toggleTheme, handleLogout]);
 
-  const openNotifications = () => {
-    router.push('?notifications=open');
-  };
+  const openNotifications = useCallback(() => router.push('?notifications=open'), [router]);
 
   return (
     <div>
       <Aside.Layout
         navbar={
           <Aside.Responsive>
-            {navbarButtons.map(({ icon: Icon, label }) => (
+            {/* @ts-expect-error */}
+            {navbarButtons.map(({ icon: Icon, label, action }) => (
               <Button
                 key={label}
                 aria-label={label}
                 appearance="plain"
                 shape="circle"
                 size="square-petite"
-                onPress={label === 'Inbox' ? openNotifications : undefined}
+                onPress={action === 'openNotifications' ? openNotifications : undefined}
               >
                 <Icon />
               </Button>
@@ -125,7 +106,7 @@ export function DoctorLayout({
                 <Avatar size="medium" src={avatar} />
               </Button>
               <Menu.Content placement="top" className="min-w-[--trigger-width]">
-                {updatedMenuItems.map((item, index) =>
+                {menuItems.map((item, index) =>
                   item.type === 'separator' ? (
                     <Menu.Separator key={`separator-${index}`} />
                   ) : (
@@ -186,7 +167,7 @@ export function DoctorLayout({
                   placement="top"
                   className="min-w-[--trigger-width]"
                 >
-                  {updatedMenuItems.map((item, index) =>
+                  {menuItems.map((item, index) =>
                     item.type === 'separator' ? (
                       <Menu.Separator key={`separator-${index}`} />
                     ) : (
@@ -213,4 +194,11 @@ export function DoctorLayout({
       <NotificationsSheet notifications={notifications} />
     </div>
   );
+}
+
+interface DoctorLayoutProps {
+  children: ReactNode;
+  name: string;
+  avatar: string;
+  notifications: DoctorNotifications[];
 }

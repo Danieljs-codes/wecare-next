@@ -27,6 +27,7 @@ import { useMutation } from '@tanstack/react-query';
 import { updateDoctorSettings } from '@/app/(main)/doctor/settings/action';
 import { toast } from 'sonner';
 import { doctorSettingsSchema } from '@/schemas/new-appointment';
+import { Popover } from '@ui/popover';
 
 interface DoctorInfo {
   id: string;
@@ -57,7 +58,6 @@ interface DoctorInfo {
 interface DoctorSettingsProps {
   doctorInfo: DoctorInfo;
 }
-
 
 type DoctorSettingsFormData = z.infer<typeof doctorSettingsSchema>;
 
@@ -146,10 +146,9 @@ export const DoctorSettings = ({ doctorInfo }: DoctorSettingsProps) => {
     });
   };
 
-
   return (
     <div>
-      <form method='POST' onSubmit={handleSubmit(onSubmit)}>
+      <form method="POST" onSubmit={handleSubmit(onSubmit)}>
         <div>
           <h1 className="text-2xl font-bold text-fg mb-1">Settings</h1>
           <p className="text-sm text-muted-fg">Manage your account settings.</p>
@@ -247,14 +246,18 @@ export const DoctorSettings = ({ doctorInfo }: DoctorSettingsProps) => {
             <div className="flex items-center gap-x-0.5">
               <h3 className="text-sm font-semibold">Your Photo </h3>
               <div className="mt-1">
-                <Tooltip delay={500}>
-                  <Tooltip.Trigger className={'text-muted-fg'}>
+                <Popover>
+                  <Popover.Trigger className={'text-muted-fg'}>
                     <IconCircleQuestionmark />
-                  </Tooltip.Trigger>
-                  <Tooltip.Content className="text-xs">
+                  </Popover.Trigger>
+                  <Popover.Content
+                    className="text-xs w-fit min-w-fit"
+                    placement="top"
+                    respectScreen={false}
+                  >
                     Change your photo
-                  </Tooltip.Content>
-                </Tooltip>
+                  </Popover.Content>
+                </Popover>
               </div>
             </div>
             <p className="text-sm text-muted-fg">

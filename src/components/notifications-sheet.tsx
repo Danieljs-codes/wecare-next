@@ -39,10 +39,10 @@ export function NotificationsSheet({
         <Sheet.Body>
           {notifications.map((notification, index) => (
             <>
-              <div key={notification.id}>
+              <div key={notification.notificationId}>
                 <div className="flex gap-x-2">
                   <Avatar
-                    src={`https://i.pravatar.cc/150?u=${notification.id}`}
+                    src={notification.patientAvatar}
                   />
                   <div className="flex flex-col gap-y-1">
                     <p className="text-xs sm:text-[13px] font-medium leading-5">

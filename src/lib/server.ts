@@ -13,6 +13,7 @@ import 'server-only';
 import { db } from '@server/db';
 import {
   appointments,
+  doctorNotifications,
   doctors,
   patientDoctors,
   patients,
@@ -447,4 +448,30 @@ export async function getPatientAppointmentsWithDoctorInfo({
     totalAppointments,
     currentPage: page,
   };
+}
+
+export async function getDoctorNotificationsWithPatientDetails(
+  doctorId: string
+) {
+  return await db
+    .select({
+      notificationId: doctorNotifications.id,
+      patientId: patients.id,
+      patientFirstName: users.firstName,
+      patientLastName: users.lastName,
+      patientAvatar: users.avatar,
+      message: doctorNotifications.message,
+      isRead: doctorNotifications.isRead,
+      type: doctorNotifications.type,
+      appointmentId: appointments.id,
+      createdAt: doctorNotifications.createdAt,
+    })
+    .from(doctorNotifications)
+    .innerJoin(
+      appointments,
+      eq(appointments.id, doctorNotifications.appointmentId)
+    )
+    .innerJoin(patients, eq(patients.id, appointments.patientId))
+    .innerJoin(users, eq(users.id, patients.userId))
+    .where(eq(doctorNotifications.doctorId, doctorId));
 }

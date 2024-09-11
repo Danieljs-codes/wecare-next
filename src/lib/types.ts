@@ -1,5 +1,6 @@
 import {
   getDoctorAppointments,
+  getDoctorNotificationsWithPatientDetails,
   getDoctorWithReviews,
   getPatientAppointmentsWithDoctorInfo,
   searchDoctors,
@@ -19,14 +20,6 @@ export type PatientAppointments = Awaited<
   ReturnType<typeof getPatientAppointmentsWithDoctorInfo>
 >;
 
-export type DoctorNotifications = {
-  id: string;
-  createdAt: string;
-  doctorId: string;
-  appointmentId: string | null;
-  message: string;
-  isRead: boolean;
-  type: 'general' | 'refund';
-  appointmentStartTime: string | null;
-  appointmentEndTime: string | null;
-};
+export type DoctorNotifications = Awaited<
+  ReturnType<typeof getDoctorNotificationsWithPatientDetails>
+>[0];
