@@ -50,8 +50,6 @@ export const getUserAndDoctor = cache(async (userId: string) => {
   };
 });
 
-
-
 export const searchParamsCache = createSearchParamsCache({
   specialization: parseAsString,
   minExperience: parseAsInteger,
@@ -63,3 +61,8 @@ export const searchParamsCache = createSearchParamsCache({
   name: parseAsString,
   timezone: parseAsString,
 });
+
+export const convertCentsToDollars = (cents: number) => {
+  const dollars = cents / 100;
+  return dollars % 1 === 0 ? dollars.toString() : dollars.toFixed(2);
+};

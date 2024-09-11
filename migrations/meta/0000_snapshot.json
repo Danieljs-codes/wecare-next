@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "85f85a32-e65b-432a-9e2a-53bb486a8c50",
+  "id": "22ad1092-342e-4564-a865-9b0efe18d502",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "appointments": {
@@ -428,6 +428,32 @@
         }
       },
       "foreignKeys": {
+        "patient_doctors_patientId_patients_id_fk": {
+          "name": "patient_doctors_patientId_patients_id_fk",
+          "tableFrom": "patient_doctors",
+          "tableTo": "patients",
+          "columnsFrom": [
+            "patientId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "patient_doctors_doctorId_doctors_id_fk": {
+          "name": "patient_doctors_doctorId_doctors_id_fk",
+          "tableFrom": "patient_doctors",
+          "tableTo": "doctors",
+          "columnsFrom": [
+            "doctorId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "patient_doctors_patient_fkey": {
           "name": "patient_doctors_patient_fkey",
           "tableFrom": "patient_doctors",
@@ -878,6 +904,14 @@
         },
         "createdAt": {
           "name": "createdAt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

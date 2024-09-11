@@ -10,7 +10,7 @@ import {
   IconStar,
 } from 'justd-icons';
 import { NewAppointmentPatientModal } from '@components/new-appointment-patient-modal';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ReviewModal } from '@components/review-modal';
 import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -19,7 +19,6 @@ import { toast } from 'sonner';
 import { Card } from '@ui/card';
 import { Avatar } from '@ui/avatar';
 import { DateTime } from 'luxon';
-import { flushSync } from 'react-dom';
 
 const reviewSchema = z.object({
   doctorId: z.string(),
@@ -54,10 +53,6 @@ export function DoctorInfo({
       return res;
     },
   });
-
-  useEffect(() => {
-    console.log(currentReview);
-  }, [currentReview, isReviewModalOpen]);
 
   const handleEditReview = (review: { rating: number; comment: string }) => {
     setCurrentReview(review);
@@ -145,7 +140,7 @@ export function DoctorInfo({
             </div>
           </div>
           <div className="px-4 -translate-y-12">
-            <h2 className="text-base font-semibold mb-2">
+            <h2 className="text-base font-semibold mb-4">
               Reviews{' '}
               <span className="text-xs text-muted-fg">
                 ({doctorInfo.reviews.length} Reviews)
@@ -204,7 +199,7 @@ export function DoctorInfo({
                   <Card.Content className="flex-grow">
                     <p className="text-muted-fg text-sm">{review.comment}</p>
                   </Card.Content>
-                  <Card.Footer className="text-sm text-gray-500">
+                  <Card.Footer className="text-sm text-fg">
                     {DateTime.fromISO(review.updatedAt).toRelative()}
                   </Card.Footer>
                 </Card>
@@ -219,7 +214,6 @@ export function DoctorInfo({
         isOpen={isOpen}
         onOpenChange={setIsOpen}
       />
-
       <ReviewModal
         key={modalKey}
         isOpen={isReviewModalOpen}

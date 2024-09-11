@@ -17,6 +17,7 @@ import {
   IconSettings,
   IconSupport,
   IconMoon,
+  IconContacts,
 } from 'justd-icons';
 import { ReactNode } from 'react';
 import { Avatar } from '@ui/avatar';
@@ -30,6 +31,7 @@ import { toast } from 'sonner';
 
 const asideItems = [
   { icon: IconDashboard, href: '/doctor/dashboard', label: 'Overview' },
+  {icon: IconContacts , href: '/doctor/profile', label: 'Profile'},
   { icon: IconAccessible, href: '/doctor/patients', label: 'Patients' },
   { icon: IconCalendar2, href: '/doctor/appointments', label: 'Appointments' },
   { icon: IconSettings, href: '/doctor/settings', label: 'Settings' },

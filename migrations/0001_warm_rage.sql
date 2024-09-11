@@ -1,1 +1,0 @@
-ALTER TABLE `reviews` ADD `updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL;

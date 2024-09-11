@@ -282,8 +282,12 @@ export const patientDoctors = sqliteTable(
   'patient_doctors',
   {
     id: text('id').notNull().primaryKey(),
-    patientId: text('patientId').notNull(),
-    doctorId: text('doctorId').notNull(),
+    patientId: text('patientId')
+      .notNull()
+      .references(() => patients.id),
+    doctorId: text('doctorId')
+      .notNull()
+      .references(() => doctors.id),
     createdAt: text('createdAt')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),

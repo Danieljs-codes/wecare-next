@@ -19,7 +19,7 @@ import { Selection } from 'react-aria-components';
 import { Time } from '@internationalized/date';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { TimeValue } from '@react-types/datepicker';
-import { getUserTimezone } from '@lib/utils';
+import { convertCentsToDollars, getUserTimezone } from '@lib/utils';
 import { Link } from '@ui/link';
 
 const sortOptions = [
@@ -201,6 +201,12 @@ export function SearchPage({ doctors }: { doctors: Doctor[] }) {
                 </p>
                 <span className="font-medium">
                   {doctor.yearsOfExperience} years
+                </span>
+              </div>
+              <div className="text-sm mb-3">
+                <p className="text-xs sm:text-sm text-muted-fg">Price</p>
+                <span className="font-medium">
+                  ${convertCentsToDollars(doctor.price)}/hour
                 </span>
               </div>
               <div className="text-sm">

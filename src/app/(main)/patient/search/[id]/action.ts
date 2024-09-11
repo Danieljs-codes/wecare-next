@@ -11,6 +11,7 @@ import {
   payments,
   doctorNotifications,
   reviews,
+  patientDoctors,
 } from '@server/db/schema';
 import { eq, and, gte, lte, or, gt, lt } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
@@ -202,7 +203,8 @@ export const bookAppointment = async (
   // Check if the appointment time is within the doctor's working hours
   if (
     appointmentInDoctorTz < startDateTime ||
-    appointmentInDoctorTz >= endDateTime
+    appointmentInDoctorTz.plus({ minutes: appointmentDurationNumber }) >
+      endDateTime
   ) {
     return {
       error:
@@ -360,10 +362,46 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
     };
   }
 
+  // Check if this session has already been processed
+  const existingPayment = await db.query.payments.findFirst({
+    where: eq(payments.stripePaymentIntentId, session.payment_intent as string),
+  });
+
+  if (existingPayment) {
+    return {
+      error: 'This payment has already been processed',
+    };
+  }
+
+  // Check if the session is still valid (e.g., not older than 1 hour)
+  const sessionCreatedAt = new Date(session.created * 1000);
+  if (new Date().getTime() - sessionCreatedAt.getTime() > 60 * 60 * 1000) {
+    return {
+      error: 'Session has expired',
+    };
+  }
+
   const appointmentId = nanoid();
   const notificationId = nanoid();
   const paymentId = nanoid();
   const doctorNotificationId = nanoid();
+  const patientDoctorId = nanoid();
+
+  const existingRelationship = await db.query.patientDoctors.findFirst({
+    where: and(
+      eq(patientDoctors.patientId, patientId),
+      eq(patientDoctors.doctorId, doctorId)
+    ),
+  });
+
+  let patientDoctorInsert;
+  if (!existingRelationship) {
+    patientDoctorInsert = db.insert(patientDoctors).values({
+      id: patientDoctorId,
+      patientId,
+      doctorId,
+    });
+  }
 
   await db.batch([
     db.insert(appointments).values({
@@ -414,6 +452,8 @@ export const handleSuccessfulPayment = async (sessionId: string) => {
       amount: session.amount_total ?? 0,
       stripePaymentIntentId: session.payment_intent as string,
     }),
+
+    ...(patientDoctorInsert ? [patientDoctorInsert] : []),
   ]);
 
   return {

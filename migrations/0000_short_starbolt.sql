@@ -51,6 +51,8 @@ CREATE TABLE `patient_doctors` (
 	`doctorId` text NOT NULL,
 	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
+	FOREIGN KEY (`patientId`) REFERENCES `patients`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`patientId`) REFERENCES `patients`(`id`) ON UPDATE cascade ON DELETE cascade,
 	FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`) ON UPDATE cascade ON DELETE cascade
 );
@@ -115,6 +117,7 @@ CREATE TABLE `reviews` (
 	`rating` integer NOT NULL,
 	`comment` text,
 	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
+	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	FOREIGN KEY (`patientId`) REFERENCES `patients`(`id`) ON UPDATE cascade ON DELETE cascade,
 	FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`) ON UPDATE cascade ON DELETE cascade
 );
