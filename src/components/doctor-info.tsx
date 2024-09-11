@@ -3,12 +3,78 @@
 import { DoctorWithReviews } from '@lib/types';
 import { Button } from '@ui/button';
 import { Separator } from '@ui/separator';
-import { IconCalendarPlus, IconPencilBox } from 'justd-icons';
-import { NewAppointmentPatientModal } from './new-appointment-patient-modal';
-import { useState } from 'react';
+import {
+  IconCalendarPlus,
+  IconHighlightWave,
+  IconPencilBox,
+  IconStar,
+} from 'justd-icons';
+import { NewAppointmentPatientModal } from '@components/new-appointment-patient-modal';
+import { useEffect, useState } from 'react';
+import { ReviewModal } from '@components/review-modal';
+import { useMutation } from '@tanstack/react-query';
+import { z } from 'zod';
+import { reviewDoctor } from '@/app/(main)/patient/search/[id]/action';
+import { toast } from 'sonner';
+import { Card } from '@ui/card';
+import { Avatar } from '@ui/avatar';
+import { DateTime } from 'luxon';
+import { flushSync } from 'react-dom';
 
-export function DoctorInfo({ doctorInfo }: { doctorInfo: DoctorWithReviews }) {
+const reviewSchema = z.object({
+  doctorId: z.string(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().max(500).optional(),
+});
+
+export function DoctorInfo({
+  doctorInfo,
+  patientId,
+}: {
+  doctorInfo: DoctorWithReviews;
+  patientId: string;
+}) {
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [currentReview, setCurrentReview] = useState<{
+    rating: number;
+    comment: string;
+  } | null>(null);
+  const [modalKey, setModalKey] = useState(0);
+
+  const { mutateAsync } = useMutation({
+    mutationKey: ['reviewDoctor'],
+    mutationFn: async (data: z.infer<typeof reviewSchema>) => {
+      const res = await reviewDoctor(data);
+
+      if (!res.success) {
+        throw new Error(res.error);
+      }
+
+      return res;
+    },
+  });
+
+  useEffect(() => {
+    console.log(currentReview);
+  }, [currentReview, isReviewModalOpen]);
+
+  const handleEditReview = (review: { rating: number; comment: string }) => {
+    setCurrentReview(review);
+    setModalKey(prevKey => prevKey + 1); // Force re-render
+    setIsReviewModalOpen(true);
+  };
+
+  const handleSubmit = (rating: number, comment: string) => {
+    toast.promise(mutateAsync({ doctorId: doctorInfo.id, rating, comment }), {
+      loading: 'Submitting review...',
+      success: (data: any) => {
+        setCurrentReview(null); // Reset current review after submission
+        return `${data.message}`;
+      },
+      error: (error: Error) => `${error.message}`,
+    });
+  };
 
   return (
     <div>
@@ -34,7 +100,11 @@ export function DoctorInfo({ doctorInfo }: { doctorInfo: DoctorWithReviews }) {
             </h2>
             <p className="text-sm text-muted-fg mb-4">{doctorInfo.bio}</p>
             <div className="flex items-center gap-x-2">
-              <Button size="small" intent="secondary">
+              <Button
+                size="small"
+                intent="secondary"
+                onPress={() => setIsReviewModalOpen(true)}
+              >
                 <IconPencilBox />
                 Review
               </Button>
@@ -52,7 +122,7 @@ export function DoctorInfo({ doctorInfo }: { doctorInfo: DoctorWithReviews }) {
             <Separator />
           </div>
           {/* About the doctor */}
-          <div className="px-4 -translate-y-12">
+          <div className="px-4 -translate-y-12 mb-6">
             <h2 className="text-base font-semibold mb-2">About the doctor</h2>
             <div className="text-sm text-muted-fg space-y-3 leading-[150%]">
               <p>
@@ -74,6 +144,73 @@ export function DoctorInfo({ doctorInfo }: { doctorInfo: DoctorWithReviews }) {
               </p>
             </div>
           </div>
+          <div className="px-4 -translate-y-12">
+            <h2 className="text-base font-semibold mb-2">
+              Reviews{' '}
+              <span className="text-xs text-muted-fg">
+                ({doctorInfo.reviews.length} Reviews)
+              </span>
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {doctorInfo.reviews.map(review => (
+                <Card key={review.id} className="flex flex-col">
+                  <Card.Header>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center">
+                        <Avatar
+                          src={review.patient.user.avatar}
+                          alt={`Patient ${review.patient.user.firstName} ${review.patient.user.lastName}`}
+                          initials={`${review.patient.user.firstName[0]}${review.patient.user.lastName[0]}`}
+                          size="large"
+                          className="mr-4"
+                        />
+                        <div>
+                          <h3 className="font-semibold text-fg text-sm">
+                            {review.patient.user.firstName}{' '}
+                            {review.patient.user.lastName}
+                          </h3>
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <IconStar
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating
+                                    ? 'text-yellow-400 fill-yellow-400 dark:text-yellow-500 dark:fill-yellow-500'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      {patientId === review.patient.id && (
+                        <Button
+                          size="square-petite"
+                          appearance="plain"
+                          className="ml-auto"
+                          onPress={() =>
+                            handleEditReview({
+                              rating: review.rating,
+                              comment: review.comment || '',
+                            })
+                          }
+                        >
+                          <IconHighlightWave className="size-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </Card.Header>
+                  <Card.Content className="flex-grow">
+                    <p className="text-muted-fg text-sm">{review.comment}</p>
+                  </Card.Content>
+                  <Card.Footer className="text-sm text-gray-500">
+                    {DateTime.fromISO(review.updatedAt).toRelative()}
+                  </Card.Footer>
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
       <NewAppointmentPatientModal
@@ -81,6 +218,15 @@ export function DoctorInfo({ doctorInfo }: { doctorInfo: DoctorWithReviews }) {
         doctorLastName={doctorInfo.user.lastName}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
+      />
+
+      <ReviewModal
+        key={modalKey}
+        isOpen={isReviewModalOpen}
+        onOpenChange={setIsReviewModalOpen}
+        onSubmit={handleSubmit}
+        defaultRating={currentReview?.rating || 0}
+        defaultReview={currentReview?.comment || ''}
       />
     </div>
   );

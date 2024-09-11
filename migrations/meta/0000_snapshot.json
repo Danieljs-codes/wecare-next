@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c30f370c-e405-4897-afb9-410f9a58b362",
+  "id": "85f85a32-e65b-432a-9e2a-53bb486a8c50",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "appointments": {
@@ -48,7 +48,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'pending'"
+          "default": "'confirmed'"
         },
         "reason": {
           "name": "reason",
@@ -85,6 +85,21 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "rescheduleCount": {
+          "name": "rescheduleCount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "lastRescheduledAt": {
+          "name": "lastRescheduledAt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -766,13 +781,26 @@
           "notNull": true,
           "autoincrement": false
         },
-        "status": {
-          "name": "status",
+        "refundAmount": {
+          "name": "refundAmount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "refundId": {
+          "name": "refundId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "stripe_payment_intent_id": {
+          "name": "stripe_payment_intent_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "'pending'"
+          "autoincrement": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -834,13 +862,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "appointmentId": {
-          "name": "appointmentId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "rating": {
           "name": "rating",
           "type": "integer",
@@ -885,19 +906,6 @@
           "tableTo": "doctors",
           "columnsFrom": [
             "doctorId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "reviews_appointment_fkey": {
-          "name": "reviews_appointment_fkey",
-          "tableFrom": "reviews",
-          "tableTo": "appointments",
-          "columnsFrom": [
-            "appointmentId"
           ],
           "columnsTo": [
             "id"

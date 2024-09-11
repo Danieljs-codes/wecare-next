@@ -4,12 +4,14 @@ CREATE TABLE `appointments` (
 	`doctorId` text NOT NULL,
 	`appointmentStart` text NOT NULL,
 	`appointmentEnd` text NOT NULL,
-	`status` text DEFAULT 'pending' NOT NULL,
+	`status` text DEFAULT 'confirmed' NOT NULL,
 	`reason` text,
 	`notes` text,
 	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	`initiatedBy` text NOT NULL,
+	`rescheduleCount` integer DEFAULT 0 NOT NULL,
+	`lastRescheduledAt` text,
 	FOREIGN KEY (`patientId`) REFERENCES `patients`(`id`) ON UPDATE cascade ON DELETE cascade,
 	FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`) ON UPDATE cascade ON DELETE cascade
 );
@@ -98,7 +100,9 @@ CREATE TABLE `payments` (
 	`id` text PRIMARY KEY NOT NULL,
 	`appointmentId` text NOT NULL,
 	`amount` integer NOT NULL,
-	`status` text DEFAULT 'pending' NOT NULL,
+	`refundAmount` integer,
+	`refundId` text,
+	`stripe_payment_intent_id` text NOT NULL,
 	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	`updatedAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	FOREIGN KEY (`appointmentId`) REFERENCES `appointments`(`id`) ON UPDATE cascade ON DELETE cascade
@@ -108,13 +112,11 @@ CREATE TABLE `reviews` (
 	`id` text PRIMARY KEY NOT NULL,
 	`patientId` text NOT NULL,
 	`doctorId` text NOT NULL,
-	`appointmentId` text NOT NULL,
 	`rating` integer NOT NULL,
 	`comment` text,
 	`createdAt` text DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
 	FOREIGN KEY (`patientId`) REFERENCES `patients`(`id`) ON UPDATE cascade ON DELETE cascade,
-	FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`) ON UPDATE cascade ON DELETE cascade,
-	FOREIGN KEY (`appointmentId`) REFERENCES `appointments`(`id`) ON UPDATE cascade ON DELETE cascade
+	FOREIGN KEY (`doctorId`) REFERENCES `doctors`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `sessions` (

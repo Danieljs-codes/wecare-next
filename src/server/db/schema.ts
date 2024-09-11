@@ -100,10 +100,10 @@ export const appointments = sqliteTable(
     appointmentStart: text('appointmentStart').notNull(), // Stored as UTC ISO 8601: '2023-05-18T14:30:00Z'
     appointmentEnd: text('appointmentEnd').notNull(), // Stored as UTC ISO 8601: '2023-05-18T15:30:00Z'
     status: text('status', {
-      enum: ['pending', 'confirmed', 'cancelled', 'completed', 'no_show'],
+      enum: ['confirmed', 'cancelled', 'completed', 'no_show'],
     })
       .notNull()
-      .default('pending'),
+      .default('confirmed'),
     reason: text('reason'), // reason for the visit
     notes: text('notes'), // post-appointment notes
     createdAt: text('createdAt')
@@ -357,10 +357,12 @@ export const reviews = sqliteTable(
     id: text('id').notNull().primaryKey(),
     patientId: text('patientId').notNull(),
     doctorId: text('doctorId').notNull(),
-    appointmentId: text('appointmentId').notNull(),
     rating: int('rating').notNull(),
     comment: text('comment'),
     createdAt: text('createdAt')
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
+    updatedAt: text('updatedAt')
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`),
   },
@@ -376,13 +378,6 @@ export const reviews = sqliteTable(
       name: 'reviews_doctor_fkey',
       columns: [reviews.doctorId],
       foreignColumns: [doctors.id],
-    })
-      .onDelete('cascade')
-      .onUpdate('cascade'),
-    reviews_appointment_fkey: foreignKey({
-      name: 'reviews_appointment_fkey',
-      columns: [reviews.appointmentId],
-      foreignColumns: [appointments.id],
     })
       .onDelete('cascade')
       .onUpdate('cascade'),
@@ -472,11 +467,6 @@ export const appointmentsRelations = relations(
       fields: [appointments.id],
       references: [payments.appointmentId],
     }),
-    review: one(reviews, {
-      relationName: 'appointmentsToReviews',
-      fields: [appointments.id],
-      references: [reviews.appointmentId],
-    }),
   })
 );
 
@@ -564,10 +554,5 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
     relationName: 'reviewsToDoctors',
     fields: [reviews.doctorId],
     references: [doctors.id],
-  }),
-  appointment: one(appointments, {
-    relationName: 'appointmentsToReviews',
-    fields: [reviews.appointmentId],
-    references: [appointments.id],
   }),
 }));

@@ -30,7 +30,7 @@ const dialogStyles = tv({
       "flex flex-1 flex-col gap-2 overflow-auto px-4 sm:px-6 py-1",
       "max-h-[calc(var(--visual-viewport-height)-var(--visual-viewport-vertical-padding)-var(--dialog-header-height,0px)-var(--dialog-footer-height,0px))]"
     ],
-    footer: "mt-auto flex flex-col-reverse justify-between gap-3 pb-4 sm:pb-6 pt-4 sm:flex-row",
+    footer: "mt-auto flex flex-col gap-3 pb-4 sm:pb-6 pt-4 sm:flex-row justify-end",
     closeIndicator: "close absolute right-2 top-2 size-6 z-50"
   }
 })

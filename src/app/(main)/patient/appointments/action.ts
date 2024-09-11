@@ -68,7 +68,7 @@ export async function rescheduleAppointment({
     };
   }
 
-  // Validate appointment exists
+  // Validate appointment exists and hasn't been cancelled
   const appointment = await db.query.appointments.findFirst({
     where: eq(appointments.id, appointmentId),
     with: {
@@ -84,6 +84,13 @@ export async function rescheduleAppointment({
   if (!appointment) {
     return {
       error: 'Appointment not found',
+      success: false as const,
+    };
+  }
+
+  if (appointment.status === 'cancelled') {
+    return {
+      error: 'Cannot reschedule a cancelled appointment',
       success: false as const,
     };
   }
@@ -286,6 +293,13 @@ export async function cancelAppointment(appointmentId: string) {
   if (appointment.patient.userId !== session.user.id) {
     return {
       error: 'You are not authorized to cancel this appointment',
+      success: false as const,
+    };
+  }
+
+  if (appointment.status === 'cancelled') {
+    return {
+      error: 'Appointment has already been cancelled',
       success: false as const,
     };
   }

@@ -13,6 +13,7 @@ import {
   IconSearch,
   IconChevronLeft,
   IconChevronRight,
+  IconEye,
 } from 'justd-icons';
 import { EmptyState } from './empty-state';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -62,7 +63,7 @@ function getStatusIntent(
     case 'cancelled':
       return 'danger';
     case 'completed':
-      return 'primary';
+      return 'success';
     case 'no_show':
       return 'secondary';
     default:
@@ -298,11 +299,14 @@ export const PatientAppointment = ({
                         showArrow
                         placement="left"
                       >
-                        <Menu.Item>View</Menu.Item>
+                        <Menu.Item>
+                          <IconEye />
+                          View
+                        </Menu.Item>
                         <Menu.Item
                           isDisabled={
                             DateTime.fromISO(item.appointmentStart) <
-                            DateTime.now()
+                              DateTime.now() || item.status === 'cancelled'
                           }
                           onAction={() => handleReschedule(item)}
                         >
@@ -312,11 +316,11 @@ export const PatientAppointment = ({
                         <Menu.Item
                           isDisabled={
                             DateTime.fromISO(item.appointmentStart) <
-                            DateTime.now()
+                              DateTime.now() || item.status === 'cancelled'
                           }
                           isDanger={
                             DateTime.fromISO(item.appointmentStart) >
-                            DateTime.now()
+                              DateTime.now() && item.status !== 'cancelled'
                           }
                           onAction={() => handleCancel(item)}
                         >
