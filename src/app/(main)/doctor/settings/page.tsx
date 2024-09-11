@@ -1,10 +1,11 @@
 import { DoctorSettings } from '@components/doctor-settings';
 import { clearSession, getSession } from '@lib/session';
-import { getUserAndDoctor } from '@lib/utils';
 import { db } from '@server/db';
 import { doctors } from '@server/db/schema';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
+
+export const runtime = 'edge';
 
 const Settings = async () => {
   const session = await getSession();

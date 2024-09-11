@@ -8,6 +8,13 @@
       "when": 1726025575974,
       "tag": "0000_short_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1726052383734,
+      "tag": "0001_free_leo",
+      "breakpoints": true
     }
   ]
 }

@@ -48,6 +48,7 @@ export const doctors = sqliteTable(
     timezone: text('timezone').notNull(), // e.g., 'Europe/Paris'
     bio: text('bio').notNull(),
     price: int('price').notNull(), // doctor's consultation fee
+    country: text('country'),
   },
   doctors => ({
     doctors_user_fkey: foreignKey({
