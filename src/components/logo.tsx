@@ -1,8 +1,8 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import LogoLight from '@/assets/logo.svg';
-import LogoDark from '@/assets/logo-dark.svg';
+import { Logo as LogoLight } from '@/assets/logo';
+import { LogoDark } from '@/assets/logo-dark';
 
 interface LogoProps {
   className?: string;

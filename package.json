@@ -17,7 +17,6 @@
     "apply": "wrangler d1 migrations apply wecare-next --local"
   },
   "dependencies": {
-    "@faker-js/faker": "^8.4.1",
     "@hookform/resolvers": "^3.9.0",
     "@internationalized/date": "^3.5.5",
     "@livekit/components-react": "^2.5.3",
@@ -54,7 +53,6 @@
   "devDependencies": {
     "@cloudflare/next-on-pages": "1",
     "@cloudflare/workers-types": "^4.20240821.1",
-    "@svgr/webpack": "^8.1.0",
     "@tanstack/eslint-plugin-query": "^5.53.0",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20",

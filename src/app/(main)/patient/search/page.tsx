@@ -11,7 +11,6 @@ export default async function Search({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-
   const session = await getSession();
 
   if (!session) {
@@ -21,8 +20,6 @@ export default async function Search({
   if (session.user.role !== 'patient') {
     redirect('/sign-in');
   }
-
-  
 
   const parsedParams = searchParamsCache.parse(searchParams);
 
@@ -39,7 +36,6 @@ export default async function Search({
   return (
     <div>
       <SearchPage doctors={doctors} />
-      <pre>{JSON.stringify(parsedParams, null, 2)}</pre>
     </div>
   );
 }
