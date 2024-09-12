@@ -14,6 +14,8 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconEye,
+  IconHighlight,
+  IconCircleX,
 } from 'justd-icons';
 import { EmptyState } from './empty-state';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -145,7 +147,9 @@ export const PatientAppointment = ({
     const appointmentStart = DateTime.fromISO(start);
     const appointmentEnd = DateTime.fromISO(end);
     // Allow joining 5 minutes before the start time
-    return now >= appointmentStart.minus({ minutes: 5 }) && now <= appointmentEnd;
+    return (
+      now >= appointmentStart.minus({ minutes: 5 }) && now <= appointmentEnd
+    );
   }, []);
 
   return (
@@ -310,7 +314,12 @@ export const PatientAppointment = ({
                         placement="left"
                       >
                         <Menu.Item
-                          isDisabled={!isJoinTime(item.appointmentStart, item.appointmentEnd)}
+                          isDisabled={
+                            !isJoinTime(
+                              item.appointmentStart,
+                              item.appointmentEnd
+                            )
+                          }
                           onAction={() => router.push(`${pathname}/${item.id}`)}
                         >
                           <IconEye />
@@ -323,6 +332,7 @@ export const PatientAppointment = ({
                           }
                           onAction={() => handleReschedule(item)}
                         >
+                          <IconHighlight />
                           Reschedule
                         </Menu.Item>
                         <Menu.Separator />
@@ -337,6 +347,7 @@ export const PatientAppointment = ({
                           }
                           onAction={() => handleCancel(item)}
                         >
+                          <IconCircleX />
                           Cancel Appointment
                         </Menu.Item>
                       </Menu.Content>

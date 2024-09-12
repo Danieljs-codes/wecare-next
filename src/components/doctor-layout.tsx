@@ -162,7 +162,7 @@ export function DoctorLayout({
                 ))}
               </Aside.Section>
             </Aside.Content>
-            <Aside.Footer className="flex flex-row items-center">
+            <Aside.Footer className="lg:flex lg:flex-row hidden items-center">
               <Menu>
                 <Button
                   appearance="plain"

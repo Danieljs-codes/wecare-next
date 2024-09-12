@@ -1,16 +1,17 @@
 import { getSession } from '@lib/session';
+import { getUserAndDoctor } from '@lib/utils';
 import { redirect } from 'next/navigation';
+import { AppointmentClient } from './appointment-client';
 import { db } from '@server/db';
 import { appointments } from '@server/db/schema';
 import { eq } from 'drizzle-orm';
-import AppointmentClient from './appointment-client';
-import { DateTime } from 'luxon';
 import { IconCalendar } from 'justd-icons';
 import { RedirectButton } from '@components/redirect-button';
+import { DateTime } from 'luxon';
 
 export const runtime = 'edge';
 
-export default async function AppointmentPage({
+export default async function DoctorAppointmentPage({
   params,
 }: {
   params: { id: string };
@@ -21,12 +22,18 @@ export default async function AppointmentPage({
     redirect('/sign-in');
   }
 
+  const userAndDoctor = await getUserAndDoctor(session.userId);
+
+  if (!userAndDoctor || userAndDoctor.userRole !== 'doctor') {
+    redirect('/sign-in');
+  }
+
   const appointment = await db.query.appointments.findFirst({
     where: eq(appointments.id, params.id),
   });
 
-  if (!appointment) {
-    redirect('/patient/appointments');
+  if (!appointment || appointment.doctorId !== userAndDoctor.doctorId) {
+    redirect('/doctor/appointments');
   }
 
   const now = DateTime.now();
@@ -34,7 +41,7 @@ export default async function AppointmentPage({
   const appointmentEnd = DateTime.fromISO(appointment.appointmentEnd);
 
   if (now > appointmentEnd || appointment.status === 'cancelled') {
-    redirect('/patient/appointments');
+    redirect('/doctor/appointments');
   }
 
   if (now < appointmentStart) {
@@ -63,12 +70,16 @@ export default async function AppointmentPage({
         <p className="text-sm text-muted-fg mb-4">
           Please join at {appointmentStart.toFormat('MMM d yyyy, h:mm a')}
         </p>
-        <RedirectButton path="/patient/appointments">
+        <RedirectButton path="/doctor/appointments">
           Go to Appointments
         </RedirectButton>
       </div>
     );
   }
 
-  return <AppointmentClient appointmentId={appointment.id} />;
+  return (
+    <div>
+      <AppointmentClient appointmentId={params.id} />
+    </div>
+  );
 }

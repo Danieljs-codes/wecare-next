@@ -1,8 +1,14 @@
 'use client';
 
 import { Button, buttonStyles } from '@ui/button';
-import { IconCalendar2, IconPlus } from 'justd-icons';
-import { useState } from 'react';
+import {
+  IconCalendar2,
+  IconDotsHorizontal,
+  IconDotsVertical,
+  IconEye,
+  IconPlus,
+} from 'justd-icons';
+import { useCallback, useState } from 'react';
 import { NewAppointmentModal } from './new-appointment-modal';
 import { DatePicker } from '@ui/date-picker';
 import {
@@ -18,9 +24,29 @@ import { EmptyState } from './empty-state';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Badge, BadgeProps } from '@ui/badge';
 import { DateTime } from 'luxon'; // Add this import
+import { Menu } from '@ui/menu';
 
 interface DoctorAppointmentsProps {
   appointments: Appointments;
+}
+
+function getStatusIntent(
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show'
+): BadgeProps['intent'] {
+  switch (status) {
+    case 'pending':
+      return 'warning';
+    case 'confirmed':
+      return 'success';
+    case 'cancelled':
+      return 'danger';
+    case 'completed':
+      return 'primary';
+    case 'no_show':
+      return 'secondary';
+    default:
+      return 'primary';
+  }
 }
 
 export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
@@ -35,24 +61,15 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
     router.push(`?date=${formattedDate}`);
   };
 
-  function getStatusIntent(
-    status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show'
-  ): BadgeProps['intent'] {
-    switch (status) {
-      case 'pending':
-        return 'warning';
-      case 'confirmed':
-        return 'success';
-      case 'cancelled':
-        return 'danger';
-      case 'completed':
-        return 'primary';
-      case 'no_show':
-        return 'secondary';
-      default:
-        return 'primary';
-    }
-  }
+  const isJoinTime = useCallback((start: string, end: string) => {
+    const now = DateTime.now();
+    const appointmentStart = DateTime.fromISO(start);
+    const appointmentEnd = DateTime.fromISO(end);
+    // Allow joining 5 minutes before the start time
+    return (
+      now >= appointmentStart.minus({ minutes: 5 }) && now <= appointmentEnd
+    );
+  }, []);
 
   return (
     <div>
@@ -107,6 +124,7 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
               <Table.Column>Gender</Table.Column>
               <Table.Column>Blood Type</Table.Column>
               <Table.Column>Birth Date</Table.Column>
+              <Table.Column />
             </Table.Header>
             <Table.Body
               renderEmptyState={() => (
@@ -151,6 +169,34 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
                           'LLL dd, yyyy'
                         )
                       : 'N/A'}
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex justify-end items-center ml-4">
+                      <Menu>
+                        <Menu.Trigger>
+                          <IconDotsVertical />
+                        </Menu.Trigger>
+                        <Menu.Content
+                          className="min-w-48"
+                          aria-label="Actions"
+                          showArrow={false}
+                          placement="bottom right"
+                          respectScreen={false}
+                        >
+                          <Menu.Item
+                            isDisabled={
+                              !isJoinTime(
+                                appointment.appointmentStart,
+                                appointment.appointmentEnd
+                              )
+                            }
+                          >
+                            <IconEye />
+                            Join
+                          </Menu.Item>
+                        </Menu.Content>
+                      </Menu>
+                    </div>
                   </Table.Cell>
                 </Table.Row>
               )}
