@@ -6,6 +6,8 @@ import { ThemeProvider } from 'next-themes';
 import { Toast } from '@ui/toast';
 import { Inter } from 'next/font/google';
 
+export const runtime = 'edge';
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',

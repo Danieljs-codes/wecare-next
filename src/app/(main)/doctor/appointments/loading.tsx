@@ -3,6 +3,8 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table } from '@/components/ui/table';
 
+export const runtime = 'edge';
+
 export default function AppointmentsLoadingState() {
   return (
     <div className="space-y-6 bg-background text-foreground">

@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 const PatientDashboard = () => {
   return <div>PatientDashboard</div>;
 };

@@ -5,7 +5,6 @@ import { getUserAndDoctor } from '@lib/utils';
 import { redirect } from 'next/navigation';
 
 export const runtime = 'edge';
-export const dynamic = 'force-dynamic';
 
 const Appointments = async ({
   searchParams,
