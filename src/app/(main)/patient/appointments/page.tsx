@@ -12,9 +12,16 @@ export const runtime = 'edge';
 export default async function PatientAppointments({
   searchParams,
 }: {
-  searchParams: { session_id?: string, filter?: string, appointmentId?: string, name?: string, page?: string, pageSize?: string };
+  searchParams: {
+    session_id?: string;
+    filter?: string;
+    appointmentId?: string;
+    name?: string;
+    page?: string;
+    pageSize?: string;
+  };
 }) {
-  const session = await getSession()
+  const session = await getSession();
 
   if (!session) {
     redirect('/sign-in');
@@ -59,6 +66,8 @@ export default async function PatientAppointments({
     filterType: filterType as 'past' | 'upcoming' | 'all',
     name: searchParams.name,
   });
+
+  console.log(appointments);
 
   return (
     <div>

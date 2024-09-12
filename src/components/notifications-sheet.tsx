@@ -6,6 +6,7 @@ import { Separator } from '@ui/separator';
 import { Sheet } from '@ui/sheet';
 import { DateTime } from 'luxon';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Fragment } from 'react';
 
 export function NotificationsSheet({
   notifications,
@@ -40,7 +41,7 @@ export function NotificationsSheet({
         </Sheet.Header>
         <Sheet.Body>
           {notifications.map((notification, index) => (
-            <>
+            <Fragment key={notification.notificationId}>
               <div key={notification.notificationId}>
                 <div className="flex gap-x-2">
                   <Avatar
@@ -70,7 +71,7 @@ export function NotificationsSheet({
               {index < notifications.length - 1 && (
                 <Separator className="my-2" />
               )}
-            </>
+            </Fragment>
           ))}
         </Sheet.Body>
       </Sheet.Content>

@@ -16,7 +16,7 @@ import {
   IconEye,
 } from 'justd-icons';
 import { EmptyState } from './empty-state';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { DateTime } from 'luxon';
 import { Badge, BadgeProps } from '@ui/badge';
 import { Menu } from '@ui/menu';
@@ -90,6 +90,7 @@ export const PatientAppointment = ({
   const { currentPage, totalAppointments, totalPages } = appointments;
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [name, setName] = useState(searchParams.get('name') ?? '');
   const isMobile = useMediaQuery('(max-width: 500px)');
   const startIndex = (currentPage - 1) * 10 + 1;
@@ -137,6 +138,15 @@ export const PatientAppointment = ({
     setSelectedAppointment(appointment);
     setIsRescheduleModalOpen(true);
   };
+
+  // Function to check if it's time to join the appointment
+  const isJoinTime = useCallback((start: string, end: string) => {
+    const now = DateTime.now();
+    const appointmentStart = DateTime.fromISO(start);
+    const appointmentEnd = DateTime.fromISO(end);
+    // Allow joining 5 minutes before the start time
+    return now >= appointmentStart.minus({ minutes: 5 }) && now <= appointmentEnd;
+  }, []);
 
   return (
     <div>
@@ -299,9 +309,12 @@ export const PatientAppointment = ({
                         showArrow
                         placement="left"
                       >
-                        <Menu.Item>
+                        <Menu.Item
+                          isDisabled={!isJoinTime(item.appointmentStart, item.appointmentEnd)}
+                          onAction={() => router.push(`${pathname}/${item.id}`)}
+                        >
                           <IconEye />
-                          View
+                          Join
                         </Menu.Item>
                         <Menu.Item
                           isDisabled={

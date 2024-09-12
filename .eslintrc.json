@@ -4,5 +4,8 @@
     "plugin:eslint-plugin-next-on-pages/recommended",
     "plugin:@tanstack/eslint-plugin-query/recommended"
   ],
-  "plugins": ["eslint-plugin-next-on-pages"]
+  "plugins": ["eslint-plugin-next-on-pages"],
+  "rules": {
+    "react/no-unescaped-entities": "off"
+  }
 }

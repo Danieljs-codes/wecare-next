@@ -39,6 +39,8 @@ const Appointments = async ({
     date
   );
 
+  console.log(appointments);
+
   return (
     <div>
       <DoctorAppointments appointments={appointments} />
