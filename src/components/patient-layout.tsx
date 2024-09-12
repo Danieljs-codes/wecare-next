@@ -26,6 +26,7 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { NotificationsSheet } from '@components/notifications-sheet';
 import { useRouter } from 'next/navigation';
+import { PatientNotifications } from '@lib/types';
 
 const asideItems = [
   { icon: IconDashboard, href: '/patient/dashboard', label: 'Overview' },
@@ -62,11 +63,18 @@ interface PatientLayoutProps {
   children: ReactNode;
   name: string;
   avatar: string;
+  notifications: PatientNotifications[];
 }
 
-export function PatientLayout({ children, avatar, name }: PatientLayoutProps) {
+export function PatientLayout({
+  children,
+  avatar,
+  name,
+  notifications,
+}: PatientLayoutProps) {
   const pathname = usePathname();
   const { setTheme, theme } = useTheme();
+  const router = useRouter();
 
   function toggleTheme() {
     setTheme(theme === 'light' ? 'dark' : 'light');
@@ -75,6 +83,8 @@ export function PatientLayout({ children, avatar, name }: PatientLayoutProps) {
   const updatedMenuItems = menuItems.map(item =>
     item.label === 'Toggle theme' ? { ...item, onAction: toggleTheme } : item
   );
+
+  const openNotifications = () => router.push('?notifications=open');
 
   return (
     <>
@@ -89,6 +99,9 @@ export function PatientLayout({ children, avatar, name }: PatientLayoutProps) {
                   appearance="plain"
                   shape="circle"
                   size="square-petite"
+                  onPress={
+                    label === 'Notifications' ? openNotifications : undefined
+                  }
                 >
                   <Icon />
                 </Button>
@@ -186,12 +199,22 @@ export function PatientLayout({ children, avatar, name }: PatientLayoutProps) {
                     )}
                   </Menu.Content>
                 </Menu>
+                <Button
+                  appearance="plain"
+                  size="square-petite"
+                  aria-label="Notifications"
+                  onPress={openNotifications}
+                  className="ml-1"
+                >
+                  <IconBell />
+                </Button>
               </Aside.Footer>
             </>
           }
         >
           <main className="relative">{children}</main>
         </Aside.Layout>
+        <NotificationsSheet notifications={notifications} userType="patient" />
       </div>
     </>
   );

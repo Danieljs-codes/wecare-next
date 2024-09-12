@@ -55,7 +55,10 @@ export function DoctorLayout({
   const { setTheme, theme } = useTheme();
   const router = useRouter();
 
-  const toggleTheme = useCallback(() => setTheme(theme === 'light' ? 'dark' : 'light'), [setTheme, theme]);
+  const toggleTheme = useCallback(
+    () => setTheme(theme === 'light' ? 'dark' : 'light'),
+    [setTheme, theme]
+  );
 
   const handleLogout = useCallback(async () => {
     const result = await logout();
@@ -65,17 +68,27 @@ export function DoctorLayout({
     }
   }, [router]);
 
-  const menuItems = useMemo(() => [
-    { icon: IconHome, href: '/doctor/dashboard', label: 'Home' },
-    { icon: IconCirclePerson, label: 'Profile' },
-    { icon: IconSupport, label: 'Contact Support' },
-    { type: 'separator' as const },
-    { icon: IconMoon, label: 'Toggle theme', onAction: toggleTheme },
-    { icon: IconLogout, label: 'Log out', onAction: handleLogout },
-    { icon: IconFolderDelete, label: 'Delete account', intent: 'danger' as const },
-  ], [toggleTheme, handleLogout]);
+  const menuItems = useMemo(
+    () => [
+      { icon: IconHome, href: '/doctor/dashboard', label: 'Home' },
+      { icon: IconCirclePerson, label: 'Profile' },
+      { icon: IconSupport, label: 'Contact Support' },
+      { type: 'separator' as const },
+      { icon: IconMoon, label: 'Toggle theme', onAction: toggleTheme },
+      { icon: IconLogout, label: 'Log out', onAction: handleLogout },
+      {
+        icon: IconFolderDelete,
+        label: 'Delete account',
+        intent: 'danger' as const,
+      },
+    ],
+    [toggleTheme, handleLogout]
+  );
 
-  const openNotifications = useCallback(() => router.push('?notifications=open'), [router]);
+  const openNotifications = useCallback(
+    () => router.push('?notifications=open'),
+    [router]
+  );
 
   return (
     <div>
@@ -90,7 +103,9 @@ export function DoctorLayout({
                 appearance="plain"
                 shape="circle"
                 size="square-petite"
-                onPress={action === 'openNotifications' ? openNotifications : undefined}
+                onPress={
+                  action === 'openNotifications' ? openNotifications : undefined
+                }
               >
                 <Icon />
               </Button>
@@ -147,7 +162,7 @@ export function DoctorLayout({
                 ))}
               </Aside.Section>
             </Aside.Content>
-            <Aside.Footer className="lg:flex lg:flex-row hidden items-center">
+            <Aside.Footer className="flex flex-row items-center">
               <Menu>
                 <Button
                   appearance="plain"
@@ -185,13 +200,22 @@ export function DoctorLayout({
                   )}
                 </Menu.Content>
               </Menu>
+              <Button
+                appearance="plain"
+                size="square-petite"
+                aria-label="Notifications"
+                onPress={openNotifications}
+                className="ml-1"
+              >
+                <IconBell />
+              </Button>
             </Aside.Footer>
           </>
         }
       >
         <main className="relative">{children}</main>
       </Aside.Layout>
-      <NotificationsSheet notifications={notifications} />
+      <NotificationsSheet notifications={notifications} userType="doctor" />
     </div>
   );
 }

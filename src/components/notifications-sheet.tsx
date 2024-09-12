@@ -1,6 +1,6 @@
 'use client';
 
-import { DoctorNotifications } from '@lib/types';
+import { DoctorNotifications, PatientNotifications } from '@lib/types';
 import { Avatar } from '@ui/avatar';
 import { Separator } from '@ui/separator';
 import { Sheet } from '@ui/sheet';
@@ -9,8 +9,10 @@ import { useSearchParams, useRouter } from 'next/navigation';
 
 export function NotificationsSheet({
   notifications,
+  userType,
 }: {
-  notifications: DoctorNotifications[];
+  notifications: DoctorNotifications[] | PatientNotifications[];
+  userType: 'doctor' | 'patient';
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -42,7 +44,13 @@ export function NotificationsSheet({
               <div key={notification.notificationId}>
                 <div className="flex gap-x-2">
                   <Avatar
-                    src={notification.patientAvatar}
+                    src={
+                      userType === 'doctor'
+                        ? // @ts-expect-error
+                          notification.patientAvatar
+                        : // @ts-expect-error
+                          notification.doctorAvatar
+                    }
                   />
                   <div className="flex flex-col gap-y-1">
                     <p className="text-xs sm:text-[13px] font-medium leading-5">

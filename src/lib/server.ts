@@ -16,6 +16,7 @@ import {
   doctorNotifications,
   doctors,
   patientDoctors,
+  patientNotifications,
   patients,
   payments,
   reviews,
@@ -474,4 +475,30 @@ export async function getDoctorNotificationsWithPatientDetails(
     .innerJoin(patients, eq(patients.id, appointments.patientId))
     .innerJoin(users, eq(users.id, patients.userId))
     .where(eq(doctorNotifications.doctorId, doctorId));
+}
+
+export async function getPatientNotificationsWithDoctorDetails(
+  patientId: string
+) {
+  return await db
+    .select({
+      notificationId: patientNotifications.id,
+      doctorId: doctors.id,
+      doctorFirstName: users.firstName,
+      doctorLastName: users.lastName,
+      doctorAvatar: users.avatar,
+      message: patientNotifications.message,
+      isRead: patientNotifications.isRead,
+      type: patientNotifications.type,
+      appointmentId: appointments.id,
+      createdAt: patientNotifications.createdAt,
+    })
+    .from(patientNotifications)
+    .innerJoin(
+      appointments,
+      eq(appointments.id, patientNotifications.appointmentId)
+    )
+    .innerJoin(doctors, eq(doctors.id, appointments.doctorId))
+    .innerJoin(users, eq(users.id, doctors.userId))
+    .where(eq(patientNotifications.patientId, patientId));
 }

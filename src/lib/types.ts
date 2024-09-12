@@ -3,6 +3,7 @@ import {
   getDoctorNotificationsWithPatientDetails,
   getDoctorWithReviews,
   getPatientAppointmentsWithDoctorInfo,
+  getPatientNotificationsWithDoctorDetails,
   searchDoctors,
 } from './server';
 
@@ -22,4 +23,8 @@ export type PatientAppointments = Awaited<
 
 export type DoctorNotifications = Awaited<
   ReturnType<typeof getDoctorNotificationsWithPatientDetails>
+>[0];
+
+export type PatientNotifications = Awaited<
+  ReturnType<typeof getPatientNotificationsWithDoctorDetails>
 >[0];
