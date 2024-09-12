@@ -25,12 +25,13 @@ import { Link } from '@ui/link';
 import { Logo } from './logo';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { logout } from '@/app/(auth)/action';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { NotificationsSheet } from './notifications-sheet';
 import { DoctorNotifications } from '@lib/types';
 import { useCallback, useMemo } from 'react';
+import { deleteDoctorAccount, logout } from '@/app/action';
+import { useMutation } from '@tanstack/react-query';
 
 const asideItems = [
   { icon: IconDashboard, href: '/doctor/dashboard', label: 'Overview' },
@@ -50,6 +51,18 @@ export function DoctorLayout({
   name,
   notifications,
 }: DoctorLayoutProps) {
+  const { mutateAsync } = useMutation({
+    mutationKey: ['deleteAccount'],
+    mutationFn: async () => {
+      const res = await deleteDoctorAccount();
+
+      if (res.success === false) {
+        throw new Error(res.message);
+      }
+
+      return res;
+    },
+  });
   const pathname = usePathname();
   const { setTheme, theme } = useTheme();
   const router = useRouter();
@@ -60,12 +73,27 @@ export function DoctorLayout({
   );
 
   const handleLogout = useCallback(async () => {
-    const result = await logout();
-    if (result.success) {
-      toast.success(result.message);
-      router.push('/sign-in');
-    }
+    toast.promise(logout(), {
+      loading: 'Logging out...',
+      success: data => {
+        router.push('/sign-in');
+        return `${data.message}`;
+      },
+      error: 'Something went wrong while logging out',
+    });
   }, [router]);
+
+  const deleteUserAccount = useMemo(() => {
+    return () => {
+      toast.promise(mutateAsync(), {
+        loading: 'Deleting account...',
+        success: data => {
+          return `${data.message}`;
+        },
+        error: (error: Error) => `${error.message}`,
+      });
+    };
+  }, [mutateAsync]);
 
   const menuItems = useMemo(
     () => [
@@ -79,9 +107,10 @@ export function DoctorLayout({
         icon: IconFolderDelete,
         label: 'Delete account',
         intent: 'danger' as const,
+        onAction: deleteUserAccount,
       },
     ],
-    [toggleTheme, handleLogout]
+    [toggleTheme, handleLogout, deleteUserAccount]
   );
 
   const openNotifications = useCallback(
