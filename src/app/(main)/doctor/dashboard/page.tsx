@@ -11,6 +11,7 @@ import { PatientsTable } from '@/components/patients-table';
 import { getUserAndDoctor } from '@lib/utils';
 import { fetchDoctorAppointments } from '@lib/server';
 import AppointmentsToday from '@components/appointments-today-table';
+import { TotalEarnings } from './total-earnings';
 
 export const runtime = 'edge';
 
@@ -68,10 +69,10 @@ async function Dashboard() {
         </p>
       </div>
       <Grid columns={{ initial: 1, lg: 4 }} gap={{ initial: 4 }}>
+        <TotalEarnings doctorId={userAndDoctor.doctorId} />
         <TotalVisitors doctorId={userAndDoctor.doctorId} days={7} />
         <TotalPatients doctorId={userAndDoctor.doctorId} days={7} />
         <TotalVisitors doctorId={userAndDoctor.doctorId} days={7} />
-        <TotalPatients doctorId={userAndDoctor.doctorId} days={7} />
       </Grid>
       <div>
         <PatientsTable patients={doctorPatients} />

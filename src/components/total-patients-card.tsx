@@ -5,9 +5,7 @@ import { Button, buttonStyles } from '@ui/button';
 import { Card } from '@ui/card';
 import {
   IconDotsHorizontal,
-  IconPersonAdd,
-  IconSwitchHorizontal,
-  IconTrendingChart4,
+  IconPersonAdd
 } from 'justd-icons';
 import { useTheme } from 'next-themes';
 

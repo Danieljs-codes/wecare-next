@@ -1,5 +1,5 @@
 import { DoctorAppointments } from '@components/doctor-appointments';
-import { getDoctorAppointments } from '@lib/server';
+import { getDoctorAppointments, getDoctorTotalEarnings } from '@lib/server';
 import { getSession } from '@lib/session';
 import { getUserAndDoctor } from '@lib/utils';
 import { redirect } from 'next/navigation';
@@ -38,8 +38,6 @@ const Appointments = async ({
     userAndDoctor.doctorId,
     date
   );
-
-  console.log(appointments);
 
   return (
     <div>

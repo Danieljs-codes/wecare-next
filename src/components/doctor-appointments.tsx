@@ -49,6 +49,17 @@ function getStatusIntent(
   }
 }
 
+function getTimingIntent(date: string): BadgeProps['intent'] {
+  const now = DateTime.now();
+  const appointmentDate = DateTime.fromISO(date);
+
+  if (appointmentDate < now) {
+    return 'secondary'; // Past appointment
+  } else {
+    return 'primary'; // Future appointment
+  }
+}
+
 export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -124,6 +135,7 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
               <Table.Column>Gender</Table.Column>
               <Table.Column>Blood Type</Table.Column>
               <Table.Column>Birth Date</Table.Column>
+              <Table.Column>Timing</Table.Column>
               <Table.Column />
             </Table.Header>
             <Table.Body
@@ -146,7 +158,10 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
                       .replace(/\b\w/g, c => c.toUpperCase())}
                   </Table.Cell>
                   <Table.Cell>
-                    <Badge intent={getStatusIntent(appointment.status)}>
+                    <Badge
+                      className="capitalize"
+                      intent={getStatusIntent(appointment.status)}
+                    >
                       {appointment.status}
                     </Badge>
                   </Table.Cell>
@@ -169,6 +184,13 @@ export function DoctorAppointments({ appointments }: DoctorAppointmentsProps) {
                           'LLL dd, yyyy'
                         )
                       : 'N/A'}
+                  </Table.Cell>
+                  <Table.Cell className="capitalize">
+                    <Badge intent={getTimingIntent(appointment.appointmentStart)}>
+                      {DateTime.fromISO(appointment.appointmentStart) > DateTime.now()
+                        ? 'Upcoming'
+                        : 'Past'}
+                    </Badge>
                   </Table.Cell>
                   <Table.Cell>
                     <div className="flex justify-end items-center ml-4">

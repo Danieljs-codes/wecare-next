@@ -34,6 +34,7 @@ import {
   lte,
   or,
   sql,
+  sum,
 } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
@@ -501,4 +502,16 @@ export async function getPatientNotificationsWithDoctorDetails(
     .innerJoin(doctors, eq(doctors.id, appointments.doctorId))
     .innerJoin(users, eq(users.id, doctors.userId))
     .where(eq(patientNotifications.patientId, patientId));
+}
+
+export async function getDoctorTotalEarnings(doctorId: string) {
+  const result = await db
+    .select({
+      totalEarnings: sql`SUM(${payments.amount}) - COALESCE(SUM(${payments.refundAmount}), 0)`.mapWith(Number),
+    })
+    .from(payments)
+    .innerJoin(appointments, eq(appointments.id, payments.appointmentId))
+    .where(eq(appointments.doctorId, doctorId));
+
+  return result[0]?.totalEarnings ?? 0;
 }
