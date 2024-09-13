@@ -5,6 +5,7 @@ import { Step1Form } from '@components/step-1-form';
 import { Logo } from '@components/logo';
 import { Step2DoctorForm } from './step-2-doctor-form';
 import Step2PatientForm from './step-2-patient-form';
+import { Link } from '@ui/link';
 
 function SignUpForm({
   patientRegDetails,
@@ -49,6 +50,12 @@ function SignUpForm({
             <Step2PatientForm />
           )}
         </div>
+        <p className="mt-2 text-sm text-muted-fg">
+          Already have an account?{' '}
+          <Link className="font-medium" intent="primary" href="/sign-in">
+            Sign in to continue
+          </Link>
+        </p>
       </div>
     </div>
   );
