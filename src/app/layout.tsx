@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import { Toast } from '@ui/toast';
 import { Inter } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/react';
 
 export const runtime = 'edge';
 
@@ -33,6 +34,7 @@ export default function RootLayout({
           </ThemeProvider>
           <Toast />
           <SpeedInsights />
+          <Analytics />
         </Providers>
       </body>
     </html>
