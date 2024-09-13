@@ -9,9 +9,9 @@ interface LogoProps {
 }
 
 export function Logo({ className = '' }: LogoProps) {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
-  if (theme === 'dark') {
+  if (resolvedTheme === 'dark') {
     return <LogoDark className={className} />;
   }
 
