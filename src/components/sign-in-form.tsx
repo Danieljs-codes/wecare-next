@@ -38,9 +38,11 @@ export function SignInForm() {
 
     onSuccess: data => {
       toast.success(data.message);
-      router.replace(
-        data.role === 'doctor' ? '/doctor/dashboard' : '/patient/dashboard'
-      );
+      if (data.role === 'doctor') {
+        router.push('/doctor/dashboard');
+      } else {
+        router.push('/patient/dashboard');
+      }
     },
   });
   const isSigningIn = status === 'pending';
