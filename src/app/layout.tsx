@@ -7,6 +7,8 @@ import { Toast } from '@ui/toast';
 import { Inter } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
+import Favicon from '@/assets/icons/favicon.png';
+import FaviconDark from '@/assets/icons/favicon-dark.png';
 
 export const runtime = 'edge';
 
@@ -20,14 +22,14 @@ export const metadata: Metadata = {
     'Wecare is a modern telemedicine platform connecting patients with expert doctors for convenient, high-quality healthcare consultations.',
   icons: [
     {
+      rel: 'icon',
       media: '(prefers-color-scheme: dark)',
-      url: '/public/favicon-dark.svg',
-      href: '/public/favicon-dark.svg',
+      url: Favicon.src,
     },
     {
+      rel: 'icon',
       media: '(prefers-color-scheme: light)',
-      url: '/public/favicon.svg',
-      href: '/public/favicon.svg',
+      url: FaviconDark.src,
     },
   ],
 };
