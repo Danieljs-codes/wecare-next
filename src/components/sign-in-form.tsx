@@ -110,7 +110,7 @@ export function SignInForm() {
                 <TextField
                   {...field}
                   label="Password"
-                  type="password"
+                  type={passwordVisible ? 'text' : 'password'}
                   autoComplete="new-password"
                   isInvalid={!!errors.password}
                   errorMessage={errors.password?.message}
