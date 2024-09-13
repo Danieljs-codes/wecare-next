@@ -1,4 +1,4 @@
-import { rescheduleAppointment } from '@/app/(main)/patient/appointments/action';
+import { rescheduleAppointment } from '@/actions/reschedule-appointment';
 import {
   RescheduleAppointmentSchema,
   rescheduleAppointmentSchema,

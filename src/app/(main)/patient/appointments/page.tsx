@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
-import { handleSuccessfulPayment } from '../search/[id]/action';
 import { PatientAppointment } from '@components/patients-appointment';
 import { getSession } from '@lib/session';
 import { db } from '@server/db';
 import { users } from '@server/db/schema';
 import { eq } from 'drizzle-orm';
 import { getPatientAppointmentsWithDoctorInfo } from '@lib/server';
+import { handleSuccessfulPayment } from '@/actions/handle-successful-payment';
 
 export const runtime = 'edge';
 

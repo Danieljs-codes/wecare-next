@@ -27,8 +27,9 @@ import { useTheme } from 'next-themes';
 import { NotificationsSheet } from '@components/notifications-sheet';
 import { PatientNotifications } from '@lib/types';
 import { useMutation } from '@tanstack/react-query';
-import { deletePatientAccount, logout } from '@/app/action';
 import { toast } from 'sonner';
+import { deletePatientAccount } from '@/actions/delete-user-account';
+import { logout } from '@/actions/logout';
 
 const asideItems = [
   { icon: IconDashboard, href: '/patient/dashboard', label: 'Overview' },

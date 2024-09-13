@@ -1,4 +1,4 @@
-import { bookAppointment } from '@/app/(main)/patient/search/[id]/action';
+import { bookAppointment } from '@/actions/book-appointment';
 import {
   PatientInitiatedAppointmentSchema,
   patientInitiatedAppointmentSchema,

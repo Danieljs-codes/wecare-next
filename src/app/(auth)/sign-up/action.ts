@@ -16,8 +16,7 @@ import { revalidatePath } from 'next/cache';
 import {
   doctorStep2Schema,
   patientStep2Schema,
-  Step2DoctorFormData,
-  Step2PatientFormData,
+  Step2DoctorFormData
 } from '@/schemas/sign-up-schema';
 import { DateTime } from 'luxon';
 import { createSession } from '@lib/session';

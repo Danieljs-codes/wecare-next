@@ -30,8 +30,9 @@ import { toast } from 'sonner';
 import { NotificationsSheet } from './notifications-sheet';
 import { DoctorNotifications } from '@lib/types';
 import { useCallback, useMemo } from 'react';
-import { deleteDoctorAccount, logout } from '@/app/action';
 import { useMutation } from '@tanstack/react-query';
+import { deleteDoctorAccount } from '@/actions/delete-doctor-account';
+import { logout } from '@/actions/logout';
 
 const asideItems = [
   { icon: IconDashboard, href: '/doctor/dashboard', label: 'Overview' },

@@ -14,11 +14,11 @@ import { useState } from 'react';
 import { ReviewModal } from '@components/review-modal';
 import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
-import { reviewDoctor } from '@/app/(main)/patient/search/[id]/action';
 import { toast } from 'sonner';
 import { Card } from '@ui/card';
 import { Avatar } from '@ui/avatar';
 import { DateTime } from 'luxon';
+import { reviewDoctor } from '@/actions/review-doctor';
 
 const reviewSchema = z.object({
   doctorId: z.string(),

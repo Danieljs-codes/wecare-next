@@ -1,9 +1,9 @@
 import { useRouter } from 'next/navigation';
 import { Modal } from '@ui/modal';
 import { useMutation } from '@tanstack/react-query';
-import { cancelAppointment } from '@/app/(main)/patient/appointments/action';
 import { toast } from 'sonner';
 import { SubmitButton } from '@ui/submit-button';
+import { cancelAppointment } from '@/actions/cancel-appointment';
 
 interface CancelAppointmentModalProps {
   isOpen: boolean;
