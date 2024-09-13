@@ -42,7 +42,12 @@ const PatientDashboard = async () => {
     redirect('/sign-in');
   }
 
-  const [totalSpending, patientAppointmentCounts, cancelledAppointments, upcomingAppointments] = await Promise.all([
+  const [
+    totalSpending,
+    patientAppointmentCounts,
+    cancelledAppointments,
+    upcomingAppointments,
+  ] = await Promise.all([
     getPatientTotalSpending(patient.id),
     getPatientAppointmentCounts(patient.id),
     getPatientCancelledAppointmentCount(patient.id),
@@ -57,6 +62,9 @@ const PatientDashboard = async () => {
         totalAppointments={patientAppointmentCounts.totalAppointments}
         upcomingAppointments={upcomingAppointments}
         cancelledAppointments={cancelledAppointments}
+        totalUpcomingAppointments={
+          patientAppointmentCounts.upcomingAppointments
+        }
       />
     </div>
   );

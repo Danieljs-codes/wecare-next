@@ -23,15 +23,19 @@ export const PatientDashboard = ({
   name,
   totalAppointments,
   upcomingAppointments,
+  totalUpcomingAppointments,
   cancelledAppointments,
 }: {
   totalSpending: number;
   name: string;
   totalAppointments: number;
+  totalUpcomingAppointments: number;
   upcomingAppointments: UpcomingAppointment[];
   cancelledAppointments: number;
 }) => {
   const router = useRouter();
+
+  console.log(totalAppointments);
 
   return (
     <div>
@@ -57,7 +61,7 @@ export const PatientDashboard = ({
         <Card className="border-y-0 shadow-none border-x-0 rounded-none py-4 lg:px-6">
           <Card.Header
             className="p-0"
-            title={`$${totalSpending.toFixed(2)}`}
+            title={`$${(totalSpending / 100).toFixed(2)}`}
             description={
               "This is the total amount you've spent on your appointments"
             }
@@ -73,7 +77,7 @@ export const PatientDashboard = ({
         <Card className="border-y-0 shadow-none border-x-0 rounded-none py-4 lg:px-6">
           <Card.Header
             className="p-0"
-            title={`${upcomingAppointments}`}
+            title={`${totalUpcomingAppointments}`}
             description={
               'This is the number of upcoming appointments you have scheduled'
             }
