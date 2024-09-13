@@ -20,7 +20,7 @@ import { SubmitButton } from '@ui/submit-button';
 import { TextField } from '@ui/text-field';
 import { Textarea } from '@ui/textarea';
 import { DateTime } from 'luxon';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -89,8 +89,6 @@ export const NewAppointmentPatientModal = ({
           .toISO()!,
       });
 
-
-
       if (!res.success) {
         throw new Error(res.error);
       }
@@ -136,7 +134,11 @@ export const NewAppointmentPatientModal = ({
             </Modal.Description>
           </Modal.Header>
           <Modal.Body>
-            <form method='POST' id="bookAppointmentForm" onSubmit={handleSubmit(onSubmit)}>
+            <form
+              method="POST"
+              id="bookAppointmentForm"
+              onSubmit={handleSubmit(onSubmit)}
+            >
               {errors.root && (
                 <Note intent="danger">{errors.root.message}</Note>
               )}

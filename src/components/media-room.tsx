@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { LiveKitRoom, VideoConference } from '@livekit/components-react';
 import '@livekit/components-styles';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
 import { toast } from 'sonner';
 
 interface MediaRoomProps {
@@ -11,7 +11,12 @@ interface MediaRoomProps {
   onCallEnd: () => void; // New prop for handling call end
 }
 
-export const MediaRoom = ({ chatId, video, audio, onCallEnd }: MediaRoomProps) => {
+export const MediaRoom = ({
+  chatId,
+  video,
+  audio,
+  onCallEnd,
+}: MediaRoomProps) => {
   const [token, setToken] = useState('');
   const router = useRouter();
 

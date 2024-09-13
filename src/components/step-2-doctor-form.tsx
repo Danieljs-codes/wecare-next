@@ -14,7 +14,7 @@ import { Select } from '@ui/select';
 import { SubmitButton } from '@ui/submit-button';
 import { Textarea } from '@ui/textarea';
 import { TimeField } from '@ui/time-field';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -62,7 +62,7 @@ export const Step2DoctorForm = () => {
   };
 
   return (
-    <form method='POST' onSubmit={handleSubmit(onSubmit)}>
+    <form method="POST" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-4">
         <Controller
           name="specialization"
@@ -180,6 +180,7 @@ export const Step2DoctorForm = () => {
           render={({ field, fieldState: { error } }) => (
             <Textarea
               className="text-sm"
+              rows={4}
               label="About"
               {...field}
               isInvalid={!!error}

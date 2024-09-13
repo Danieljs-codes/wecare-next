@@ -3,8 +3,8 @@
 import { Card } from '@ui/card';
 import { Table } from '@ui/table';
 import { EmptyState } from './empty-state';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { Link } from 'next-view-transitions';
 
 interface PatientData {
   patientId: string;
@@ -40,7 +40,9 @@ export function PatientsTable({ patients }: PatientsTableProps) {
         description={
           <p>
             A list of 5 patients you have attended to. To see more, go to the{' '}
-            <Link className="underline" href="/doctor/patients">patients page.</Link>
+            <Link className="underline" href="/doctor/patients">
+              patients page.
+            </Link>
           </p>
         }
         withoutPadding

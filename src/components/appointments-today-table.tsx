@@ -3,8 +3,8 @@
 import { Card } from '@ui/card';
 import { Table } from '@ui/table';
 import { EmptyState } from './empty-state';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { Link } from 'next-view-transitions';
 interface AppointmentData {
   appointmentId: string;
   appointmentStart: string;
@@ -36,7 +36,9 @@ export function AppointmentsToday({ appointments }: AppointmentsTodayProps) {
         description={
           <p>
             A list of 5 appointments you have today. To see more, go to the{' '}
-            <Link className="underline" href="/doctor/appointments">appointments page.</Link>
+            <Link className="underline" href="/doctor/appointments">
+              appointments page.
+            </Link>
           </p>
         }
         withoutPadding

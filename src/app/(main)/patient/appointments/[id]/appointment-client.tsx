@@ -1,19 +1,21 @@
-'use client'
+'use client';
 
-import { MediaRoom } from '@/components/media-room'
-import { useRouter } from 'next/navigation'
-import { useCallback } from 'react'
+import { MediaRoom } from '@/components/media-room';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useCallback } from 'react';
 
 interface AppointmentClientProps {
-  appointmentId: string
+  appointmentId: string;
 }
 
-export default function AppointmentClient({ appointmentId }: AppointmentClientProps) {
-  const router = useRouter()
+export default function AppointmentClient({
+  appointmentId,
+}: AppointmentClientProps) {
+  const router = useRouter();
 
   const handleCallEnd = useCallback(() => {
-    router.push('/patient/appointments')
-  }, [router])
+    router.push('/patient/appointments');
+  }, [router]);
 
   return (
     <div className="h-[600px]">
@@ -24,5 +26,5 @@ export default function AppointmentClient({ appointmentId }: AppointmentClientPr
         onCallEnd={handleCallEnd}
       />
     </div>
-  )
+  );
 }

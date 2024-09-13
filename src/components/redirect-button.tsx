@@ -1,13 +1,13 @@
 'use client';
 
 import { buttonStyles } from '@ui/button';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 import { ReactNode } from 'react';
 
 const RedirectButton = ({
   path,
   children,
-  className
+  className,
 }: {
   path: string;
   children: ReactNode;

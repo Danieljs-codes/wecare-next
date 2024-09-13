@@ -3,7 +3,8 @@
 import { getSession } from '@lib/session';
 import { db } from '@server/db';
 import { users, doctors, appointments, reviews } from '@server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, lt } from 'drizzle-orm';
+import { DateTime } from 'luxon';
 import { nanoid } from 'nanoid';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -71,7 +72,8 @@ export async function reviewDoctor(input: z.infer<typeof reviewSchema>) {
     where: and(
       eq(appointments.patientId, patient.id),
       eq(appointments.doctorId, doctorId),
-      eq(appointments.status, 'completed')
+      eq(appointments.status, 'confirmed'),
+      lt(appointments.appointmentStart, DateTime.utc().toISO())
     ),
   });
 

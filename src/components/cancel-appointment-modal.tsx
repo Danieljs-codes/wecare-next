@@ -1,4 +1,4 @@
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
 import { Modal } from '@ui/modal';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';

@@ -15,7 +15,7 @@ import { signIn } from '@/app/(auth)/sign-in/action';
 import { useState } from 'react';
 import { Note } from '@ui/note';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
 
 export function SignInForm() {
   const router = useRouter();
@@ -81,7 +81,7 @@ export function SignInForm() {
           </div>
         )}
         <form
-          method='POST'
+          method="POST"
           onSubmit={handleSubmit(onSubmit)}
           className={cn('mt-8', error.length > 0 && 'mt-4')}
         >

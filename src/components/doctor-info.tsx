@@ -121,21 +121,26 @@ export function DoctorInfo({
             <h2 className="text-base font-semibold mb-2">About the doctor</h2>
             <div className="text-sm text-muted-fg space-y-3 leading-[150%]">
               <p>
-                I&apos;m a Product Designer based in Melbourne, Australia. I
-                enjoy working on product design, design systems, and Webflow
-                projects, but I don&apos;t take myself too seriously.
+                Dr. {doctorInfo.user.firstName} {doctorInfo.user.lastName} is a
+                highly skilled and experienced medical professional dedicated to
+                providing exceptional patient care. With a strong background in
+                their specialized field, they bring a wealth of knowledge and
+                expertise to every consultation.
               </p>
               <p>
-                I&apos;ve worked with some of the world&apos;s most exciting
-                companies, including Coinbase, Stripe, and Linear. I&apos;m
-                passionate about helping startups grow, improve their UX and
-                customer experience, and to raise venture capital through good
-                design.
+                Throughout their career, Dr. {doctorInfo.user.lastName} has
+                consistently demonstrated a commitment to staying at the
+                forefront of medical advancements. They are passionate about
+                employing the latest techniques and technologies to ensure the
+                best possible outcomes for their patients.
               </p>
               <p>
-                My work has been featured on Typewolf, Mindsparkle Magazine,
-                Webflow, Fonts In Use, CSS Winner, httpster, Siteinspire, and
-                Best Website Gallery.
+                Known for their compassionate approach and excellent
+                communication skills, Dr. {doctorInfo.user.firstName} strives to
+                create a comfortable and supportive environment for all
+                patients. They believe in personalized care and work closely
+                with each individual to develop tailored treatment plans that
+                address their unique needs and concerns.
               </p>
             </div>
           </div>

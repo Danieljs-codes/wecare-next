@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 import { useMutation } from '@tanstack/react-query';
 import { createStep1Registration } from '@/app/(auth)/sign-up/action';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
 import { formSchema } from '@/schemas/sign-in-schema';
 import { Tooltip } from '@ui/tooltip';
 import { IconEye, IconEyeOff } from 'justd-icons';
@@ -142,6 +142,7 @@ export function Step1Form({ initialData }: { initialData?: FormData }) {
             label="Role"
             isInvalid={!!errors.role}
             errorMessage={errors.role?.message}
+            placeholder="Select role"
             defaultSelectedKey={initialData?.role}
             onSelectionChange={val => field.onChange(val)}
             {...field}

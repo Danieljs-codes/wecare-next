@@ -1,7 +1,7 @@
 'use client';
 
 import { MediaRoom } from '@/components/media-room';
-import { useRouter } from 'next/navigation';
+import { useTransitionRouter as useRouter } from 'next-view-transitions';
 import { useCallback } from 'react';
 
 interface AppointmentClientProps {

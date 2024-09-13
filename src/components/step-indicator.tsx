@@ -3,7 +3,7 @@
 import { buttonStyles } from '@ui/button';
 import { cn } from '@ui/primitive';
 import { IconCheck, IconChevronRight } from 'justd-icons';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
 import { Fragment } from 'react/jsx-runtime';
 
 interface StepIndicatorProps {
