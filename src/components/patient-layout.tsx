@@ -39,11 +39,6 @@ const asideItems = [
     href: '/patient/appointments',
     label: 'Appointments',
   },
-  {
-    icon: IconCalendar2,
-    href: '/patient/medical-history',
-    label: 'Medical History',
-  },
   { icon: IconSettings, href: '/patient/settings', label: 'Settings' },
 ];
 
