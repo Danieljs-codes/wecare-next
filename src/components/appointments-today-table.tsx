@@ -4,7 +4,7 @@ import { Card } from '@ui/card';
 import { Table } from '@ui/table';
 import { EmptyState } from './empty-state';
 import { useRouter } from 'next/navigation';
-import { Link } from 'next-view-transitions';
+import Link from 'next/link';
 interface AppointmentData {
   appointmentId: string;
   appointmentStart: string;

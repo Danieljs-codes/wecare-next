@@ -1,7 +1,7 @@
 'use client';
 
 import { buttonStyles } from '@ui/button';
-import { Link } from 'next-view-transitions';
+import Link from 'next/link';
 import { ReactNode } from 'react';
 
 const RedirectButton = ({

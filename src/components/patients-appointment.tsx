@@ -23,7 +23,7 @@ import { DateTime } from 'luxon';
 import { Badge, BadgeProps } from '@ui/badge';
 import { Menu } from '@ui/menu';
 import { useCallback, useState } from 'react';
-import { Link } from 'next-view-transitions';
+import Link from 'next/link';
 import { useMediaQuery } from '@ui/primitive';
 import { RescheduleAppointmentModal } from './reschedule-appointment-modal';
 import { CancelAppointmentModal } from './cancel-appointment-modal';
