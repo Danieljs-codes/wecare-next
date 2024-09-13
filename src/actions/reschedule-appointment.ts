@@ -9,7 +9,6 @@ import {
   doctorNotifications,
 } from '@server/db/schema';
 import { eq, sql } from 'drizzle-orm';
-import { DateTime } from 'luxon';
 import { nanoid } from 'nanoid';
 import { revalidatePath } from 'next/cache';
 
@@ -92,14 +91,10 @@ export async function rescheduleAppointment({
     };
   }
 
-  const appointmentStart = DateTime.fromISO(
-    appointment.appointmentStart
-  ).setZone('utc');
-  const appointmentEnd = DateTime.fromISO(appointment.appointmentEnd).setZone(
-    'utc'
-  );
+  const appointmentStart = new Date(appointment.appointmentStart);
+  const appointmentEnd = new Date(appointment.appointmentEnd);
 
-  if (appointmentStart < DateTime.now()) {
+  if (appointmentStart < new Date()) {
     return {
       error: 'Appointment has already passed',
       success: false as const,
@@ -107,9 +102,8 @@ export async function rescheduleAppointment({
   }
 
   // Check if appointment is 24 hours or less away (User cannot reschedule appointments within 24 hours)
-  const timeUntilAppointment = appointmentStart
-    .diff(DateTime.now())
-    .as('hours');
+  const timeUntilAppointment =
+    (appointmentStart.getTime() - new Date().getTime()) / (1000 * 60 * 60);
   if (timeUntilAppointment < 24) {
     return {
       error: 'Appointment cannot be rescheduled within 24 hours',
@@ -126,20 +120,19 @@ export async function rescheduleAppointment({
   }
 
   // Validate appointment start time
-  const newAppointmentStart = DateTime.fromISO(newAppointmentStartDate).setZone(
-    'utc'
+  const newAppointmentStart = new Date(newAppointmentStartDate);
+  const newAppointmentEnd = new Date(
+    newAppointmentStart.getTime() +
+      (appointmentEnd.getTime() - appointmentStart.getTime())
   );
-  const newAppointmentEnd = newAppointmentStart.plus({
-    minutes: appointmentEnd.diff(appointmentStart).as('minutes'),
-  });
 
   // Check for overlapping appointments
   const overlappingAppointment = await db.query.appointments.findFirst({
     where: sql`
       ${eq(appointments.doctorId, doctorId)}
       AND ${appointments.id} != ${appointmentId}
-      AND ${appointments.appointmentStart} < ${newAppointmentEnd.toISO()}
-      AND ${appointments.appointmentEnd} > ${newAppointmentStart.toISO()}
+      AND ${appointments.appointmentStart} < ${newAppointmentEnd.toISOString()}
+      AND ${appointments.appointmentEnd} > ${newAppointmentStart.toISOString()}
     `,
   });
 
@@ -150,16 +143,6 @@ export async function rescheduleAppointment({
     };
   }
 
-  // Validate the patient rescheduled for at least 1 hour after the original appointment
-  // if (newAppointmentStart < appointmentStart.plus({ hours: 1 })) {
-  //   return {
-  //     error:
-  //       'Appointment cannot be rescheduled for less than 1 hour after the original appointment',
-  //     success: false as const,
-  //   };
-  // }
-
-  // Validate the doctor doesn't have an appointment scheduled for the new appointment start time
   // Validate if appointmentDateTime falls into doctor's working hours
   const doctorWorkingHours = await db.query.doctors.findFirst({
     where: eq(doctors.id, doctorId),
@@ -180,25 +163,29 @@ export async function rescheduleAppointment({
   const { startTime, endTime, timezone } = doctorWorkingHours;
 
   // Convert appointment time to doctor's timezone
-  const appointmentInDoctorTz = newAppointmentStart.setZone(timezone);
+  const appointmentInDoctorTz = new Date(
+    newAppointmentStart.toLocaleString('en-US', { timeZone: timezone })
+  );
 
   // Parse doctor's working hours
-  const doctorStartTime = DateTime.fromISO(startTime, { zone: timezone });
-  const doctorEndTime = DateTime.fromISO(endTime, { zone: timezone });
+  const doctorStartTime = new Date(`1970-01-01T${startTime}`);
+  const doctorEndTime = new Date(`1970-01-01T${endTime}`);
 
   // Set the date of doctorStartTime and doctorEndTime to the appointment date
-  const startDateTime = appointmentInDoctorTz.set({
-    hour: doctorStartTime.hour,
-    minute: doctorStartTime.minute,
-    second: 0,
-    millisecond: 0,
-  });
-  const endDateTime = appointmentInDoctorTz.set({
-    hour: doctorEndTime.hour,
-    minute: doctorEndTime.minute,
-    second: 0,
-    millisecond: 0,
-  });
+  const startDateTime = new Date(appointmentInDoctorTz);
+  startDateTime.setHours(
+    doctorStartTime.getHours(),
+    doctorStartTime.getMinutes(),
+    0,
+    0
+  );
+  const endDateTime = new Date(appointmentInDoctorTz);
+  endDateTime.setHours(
+    doctorEndTime.getHours(),
+    doctorEndTime.getMinutes(),
+    0,
+    0
+  );
 
   // Check if the appointment time is within the doctor's working hours
   if (
@@ -218,8 +205,8 @@ export async function rescheduleAppointment({
       .update(appointments)
       .set({
         rescheduleCount: appointment.rescheduleCount + 1,
-        appointmentStart: newAppointmentStart.toISO()!,
-        appointmentEnd: newAppointmentEnd.toISO()!,
+        appointmentStart: newAppointmentStart.toISOString(),
+        appointmentEnd: newAppointmentEnd.toISOString(),
         updatedAt: sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`,
       })
       .where(eq(appointments.id, appointmentId)),
@@ -229,17 +216,14 @@ export async function rescheduleAppointment({
       doctorId,
       message: `Your appointment with ${user.firstName} ${
         user.lastName
-      } has been rescheduled for ${DateTime.fromISO(
-        newAppointmentStart.toISO()!,
-        { zone: 'utc' }
-      )
-        .setZone(patient.timezone)
-        .toLocaleString(DateTime.DATETIME_FULL)}.`,
+      } has been rescheduled for ${newAppointmentStart.toLocaleString('en-US', {
+        timeZone: patient.timezone,
+      })}.`,
       isRead: false,
       type: 'general',
       appointmentId,
-      appointmentStartTime: newAppointmentStart.toISO()!,
-      appointmentEndTime: appointmentEnd.toISO()!,
+      appointmentStartTime: newAppointmentStart.toISOString(),
+      appointmentEndTime: appointmentEnd.toISOString(),
     }),
   ]);
 

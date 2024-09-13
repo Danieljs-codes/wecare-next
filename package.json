@@ -12,15 +12,17 @@
     "preview": "bun pages:build && wrangler pages dev",
     "deploy": "bun pages:build && wrangler pages deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
-    "list": "wrangler d1 migrations list wecare-next --local",
-    "gen": "drizzle-kit generate",
-    "apply": "wrangler d1 migrations apply wecare-next --local"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@internationalized/date": "^3.5.5",
+    "@libsql/client": "^0.10.0",
     "@livekit/components-react": "^2.5.3",
     "@livekit/components-styles": "^1.1.2",
+    "@next/bundle-analyzer": "^14.2.11",
     "@stripe/stripe-js": "^4.4.0",
     "@tanstack/react-query": "^5.53.1",
     "clsx": "^2.1.1",

@@ -42,6 +42,7 @@ CREATE TABLE `doctors` (
 	`timezone` text NOT NULL,
 	`bio` text NOT NULL,
 	`price` integer NOT NULL,
+	`country` text,
 	FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint

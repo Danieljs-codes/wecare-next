@@ -4,7 +4,6 @@ import { clearSession, getSession } from '@lib/session';
 import { db } from '@server/db';
 import { appointments, doctors, users } from '@server/db/schema';
 import { eq, and, gt } from 'drizzle-orm';
-import { DateTime } from 'luxon';
 import { revalidatePath } from 'next/cache';
 
 export const deleteDoctorAccount = async () => {
@@ -30,7 +29,7 @@ export const deleteDoctorAccount = async () => {
   const upcomingAppointments = await db.query.appointments.findMany({
     where: and(
       eq(appointments.doctorId, doctor.id),
-      gt(appointments.appointmentStart, DateTime.utc().toISO())
+      gt(appointments.appointmentStart, new Date().toISOString())
     ),
   });
 

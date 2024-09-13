@@ -1,4 +1,3 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { AccessToken } from 'livekit-server-sdk';
 import { getSession } from '@lib/session';
 import { db } from '@server/db';
@@ -8,7 +7,7 @@ import { DateTime } from 'luxon';
 
 export const runtime = 'edge';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   const session = await getSession();
 
   if (!session) return new Response('Unauthorized', { status: 401 });
@@ -22,8 +21,9 @@ export async function GET(request: NextRequest) {
 
   if (!user) return new Response('Unauthorized', { status: 401 });
 
-  const room = request.nextUrl.searchParams.get('room');
-  const username = request.nextUrl.searchParams.get('username');
+  const { searchParams } = new URL(request.url);
+  const room = searchParams.get('room');
+  const username = searchParams.get('username');
 
   if (!room || !username)
     return new Response('Missing room or username', { status: 400 });
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     return new Response('Server misconfigured', { status: 500 });
   }
 
-  const at = new AccessToken(apiKey, apiSecret, { 
+  const at = new AccessToken(apiKey, apiSecret, {
     identity: username,
     ttl: Math.max(0, tenMinutesAfterEnd.toSeconds() - now.toSeconds()),
   });
@@ -76,5 +76,5 @@ export async function GET(request: NextRequest) {
 
   const token = await at.toJwt();
 
-  return NextResponse.json({ token });
+  return Response.json({ token });
 }

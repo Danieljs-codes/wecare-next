@@ -10,7 +10,6 @@ import { DropZone } from '@ui/drop-zone';
 import { NumberField } from '@ui/number-field';
 import { Separator } from '@ui/separator';
 import { TextField } from '@ui/text-field';
-import { Tooltip } from '@ui/tooltip';
 import { IconCircleQuestionmark, IconCloudDownload } from 'justd-icons';
 import { FileTrigger } from 'react-aria-components';
 import { Select } from '@ui/select';

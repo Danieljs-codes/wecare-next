@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
 [vars]
-BUN_VERSION = "1.1.18"
+BUN_VERSION = "1.1.26"
 NEXT_PUBLIC_BASE_URL="https://wecare-next.pages.dev"
 NEXT_PUBLIC_LIVEKIT_URL="wss://wecare-y42mvpzx.livekit.cloud"
 

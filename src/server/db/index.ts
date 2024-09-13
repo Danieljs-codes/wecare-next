@@ -1,5 +1,10 @@
-import { drizzle } from "drizzle-orm/d1";
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client/web';
+import * as schema from './schema';
 
-import * as schema from "./schema";
+const turso = createClient({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
-export const db = drizzle(process.env.DB as unknown as D1Database, { schema, logger: false });
+export const db = drizzle(turso, { schema });
