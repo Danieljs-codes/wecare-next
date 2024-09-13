@@ -18,6 +18,18 @@ export const metadata: Metadata = {
   title: 'Wecare - Your Health, Our Priority',
   description:
     'Wecare is a modern telemedicine platform connecting patients with expert doctors for convenient, high-quality healthcare consultations.',
+  icons: [
+    {
+      media: '(prefers-color-scheme: dark)',
+      url: '/public/favicon-dark.svg',
+      href: '/public/favicon-dark.svg',
+    },
+    {
+      media: '(prefers-color-scheme: light)',
+      url: '/public/favicon.svg',
+      href: '/public/favicon.svg',
+    },
+  ],
 };
 
 export default function RootLayout({
