@@ -50,7 +50,7 @@ function SignUpForm({
             <Step2PatientForm />
           )}
         </div>
-        <p className="mt-2 text-sm text-muted-fg">
+        <p className="mt-4 text-sm text-muted-fg text-center">
           Already have an account?{' '}
           <Link className="font-medium" intent="primary" href="/sign-in">
             Sign in to continue
