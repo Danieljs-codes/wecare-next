@@ -12,8 +12,13 @@ async function seedDoctors() {
   for (let i = 0; i < NUM_DOCTORS; i++) {
     const userId = nanoid();
     const doctorId = nanoid();
-    const firstName = faker.person.firstName();
-    const lastName = faker.person.lastName();
+    const firstName = faker.person.firstName().toLowerCase();
+    const lastName = faker.person.lastName().toLowerCase();
+    const email = faker.internet.email({
+      firstName,
+      lastName,
+      provider: 'gmail.com',
+    });
     const password = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
 
     // Create user entry
@@ -22,7 +27,7 @@ async function seedDoctors() {
       firstName,
       lastName,
       role: 'doctor',
-      email: faker.internet.email(),
+      email: email.toLowerCase(),
       password: await hashPassword(password),
       avatar: faker.image.avatar(),
       createdAt: faker.date.past().toISOString(),
@@ -55,15 +60,17 @@ async function seedDoctors() {
       startTime: faker.date.future().toISOString(),
       endTime: faker.date.future().toISOString(),
       updatedAt: faker.date.recent().toISOString(),
-      timezone: faker.location.timeZone(),
+      timezone: faker.location.timeZone().toLowerCase(),
       bio: faker.person.bio(),
       price: faker.number.int({ min: 5000, max: 50000 }),
-      country: faker.location.country(),
+      country: faker.location.country().toLowerCase(),
     });
   }
 
   console.log('✅ Doctors seeded successfully!');
 }
+
+seedDoctors().catch(console.error);
 
 const NUM_PATIENTS = 100;
 
@@ -73,8 +80,8 @@ async function seedPatients() {
   for (let i = 0; i < NUM_PATIENTS; i++) {
     const userId = nanoid();
     const patientId = nanoid();
-    const firstName = faker.person.firstName();
-    const lastName = faker.person.lastName();
+    const firstName = faker.person.firstName().toLowerCase();
+    const lastName = faker.person.lastName().toLowerCase();
     const email = faker.internet.email({ firstName, lastName });
     const password = `${firstName.toLowerCase()}${lastName.toLowerCase()}`;
 
@@ -105,17 +112,17 @@ async function seedPatients() {
         'O+',
         'O-',
       ]),
-      gender: faker.person.sex(),
+      gender: faker.person.sex().toLowerCase(),
       genoType: faker.helpers.arrayElement(['AA', 'AS', 'SS']),
       birthDate: faker.date
         .birthdate({ min: 18, max: 80, mode: 'age' })
         .toISOString(),
-      occupation: faker.person.jobTitle(),
+      occupation: faker.person.jobTitle().toLowerCase(),
       mobileNumber: faker.phone.number(),
       address: faker.location.streetAddress(true),
       createdAt: faker.date.past().toISOString(),
       updatedAt: faker.date.recent().toISOString(),
-      timezone: faker.location.timeZone(),
+      timezone: faker.location.timeZone().toLowerCase(),
     });
   }
 
