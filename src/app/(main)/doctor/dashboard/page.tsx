@@ -8,7 +8,7 @@ import { db } from '@server/db';
 import { patientDoctors, patients, users } from '@server/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { PatientsTable } from '@/components/patients-table';
-import { getUserAndDoctor } from '@lib/utils';
+import { getUserAndDoctor } from '@lib/server';
 import { fetchDoctorAppointments } from '@lib/server';
 import AppointmentsToday from '@components/appointments-today-table';
 import { TotalEarnings } from './total-earnings';

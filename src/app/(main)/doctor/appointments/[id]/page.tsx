@@ -1,5 +1,5 @@
 import { getSession } from '@lib/session';
-import { getUserAndDoctor } from '@lib/utils';
+import { getUserAndDoctor } from '@lib/server';
 import { redirect } from 'next/navigation';
 import { AppointmentClient } from './appointment-client';
 import { db } from '@server/db';

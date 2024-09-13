@@ -1,7 +1,7 @@
 import { DoctorAppointments } from '@components/doctor-appointments';
 import { getDoctorAppointments, getDoctorTotalEarnings } from '@lib/server';
 import { getSession } from '@lib/session';
-import { getUserAndDoctor } from '@lib/utils';
+import { getUserAndDoctor } from '@lib/server';
 import { redirect } from 'next/navigation';
 
 export const runtime = 'edge';

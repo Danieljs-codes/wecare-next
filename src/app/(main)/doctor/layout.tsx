@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { DoctorLayout as DoctorDashboardLayout } from '@components/doctor-layout';
 import { getSession } from '@lib/session';
 import { redirect } from 'next/navigation';
-import { getUserAndDoctor } from '@lib/utils';
+import { getUserAndDoctor } from '@lib/server';
 import { getDoctorNotificationsWithPatientDetails } from '@lib/server';
 
 export const runtime = 'edge';
