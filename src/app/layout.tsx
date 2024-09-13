@@ -5,6 +5,7 @@ import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from 'next-themes';
 import { Toast } from '@ui/toast';
 import { Inter } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const runtime = 'edge';
 
@@ -31,6 +32,7 @@ export default function RootLayout({
             {children}
           </ThemeProvider>
           <Toast />
+          <SpeedInsights />
         </Providers>
       </body>
     </html>
