@@ -35,6 +35,13 @@ async function seedDoctors() {
     });
 
     // Create corresponding doctor entry
+    const startHour = faker.number.int({ min: 6, max: 7 });
+    const endHour = faker.number.int({ min: 17, max: 21 });
+    const startTime = new Date();
+    startTime.setHours(startHour, 0, 0, 0);
+    const endTime = new Date();
+    endTime.setHours(endHour, 0, 0, 0);
+
     await db.insert(doctors).values({
       id: doctorId,
       userId: userId,
@@ -57,8 +64,8 @@ async function seedDoctors() {
       ]),
       yearsOfExperience: faker.number.int({ min: 5, max: 40 }),
       createdAt: faker.date.past().toISOString(),
-      startTime: faker.date.future().toISOString(),
-      endTime: faker.date.future().toISOString(),
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
       updatedAt: faker.date.recent().toISOString(),
       timezone: faker.location.timeZone().toLowerCase(),
       bio: faker.person.bio(),

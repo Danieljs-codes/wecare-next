@@ -7,7 +7,6 @@ import { Toast } from '@ui/toast';
 import { Inter } from 'next/font/google';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
-import { ViewTransitions } from 'next-view-transitions';
 
 export const runtime = 'edge';
 
@@ -27,19 +26,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ViewTransitions>
-      <html suppressHydrationWarning lang="en">
-        <body className={`${inter.variable} ${GeistMono.variable} font-sans`}>
-          <Providers>
-            <ThemeProvider disableTransitionOnChange attribute="class">
-              {children}
-            </ThemeProvider>
-            <Toast />
-          </Providers>
-          <SpeedInsights />
-          <Analytics />
-        </body>
-      </html>
-    </ViewTransitions>
+    <html suppressHydrationWarning lang="en">
+      <body className={`${inter.variable} ${GeistMono.variable} font-sans`}>
+        <Providers>
+          <ThemeProvider disableTransitionOnChange attribute="class">
+            {children}
+          </ThemeProvider>
+          <Toast />
+        </Providers>
+        <SpeedInsights />
+        <Analytics />
+      </body>
+    </html>
   );
 }

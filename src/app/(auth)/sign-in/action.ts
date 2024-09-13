@@ -22,19 +22,10 @@ export const signIn = async (formData: SignInFormData) => {
   const user = await db.query.users.findFirst({
     where: eq(users.email, email),
   });
-
-  if (!user) {
+  
+  if (!user || !(await verifyPassword(user.password, password))) {
     return {
-      errors: ['User not found'],
-      data: null,
-    };
-  }
-
-  const passwordMatch = await verifyPassword(user.password, password);
-
-  if (!passwordMatch) {
-    return {
-      errors: ['Invalid password'],
+      errors: ['Invalid email or password'],
       data: null,
     };
   }
