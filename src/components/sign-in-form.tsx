@@ -16,10 +16,13 @@ import { useState } from 'react';
 import { Note } from '@ui/note';
 import { toast } from 'sonner';
 import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { Tooltip } from '@ui/tooltip';
+import { IconEyeOff, IconEye } from 'justd-icons';
 
 export function SignInForm() {
   const router = useRouter();
   const [error, setError] = useState<Array<string>>([]);
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const { mutate, status } = useMutation({
     mutationKey: ['signIn'],
     mutationFn: async (data: SignInFormData) => {
@@ -111,6 +114,20 @@ export function SignInForm() {
                   autoComplete="new-password"
                   isInvalid={!!errors.password}
                   errorMessage={errors.password?.message}
+                  suffix={
+                    <Tooltip delay={0}>
+                      <Button
+                        size="square-petite"
+                        onPress={() => setPasswordVisible(!passwordVisible)}
+                        appearance="outline"
+                      >
+                        {passwordVisible ? <IconEyeOff /> : <IconEye />}
+                      </Button>
+                      <Tooltip.Content className="text-[11px]">
+                        {passwordVisible ? 'Hide password' : 'Show password'}
+                      </Tooltip.Content>
+                    </Tooltip>
+                  }
                 />
               )}
             />
