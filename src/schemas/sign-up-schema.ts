@@ -73,7 +73,7 @@ export const doctorStep2Schema = z.object({
         });
       }
     }),
-  timezone: z.string(),
+  timezone: z.string().transform(val => val.toLowerCase()),
   bio: z.string().min(10, { message: 'Bio must be at least 10 characters' }),
   price: z
     .number({
