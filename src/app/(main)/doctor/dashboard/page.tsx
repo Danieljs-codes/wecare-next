@@ -55,8 +55,10 @@ async function Dashboard() {
     <div className="space-y-6 lg:space-y-10">
       <div>
         <h1 className="font-semibold text-fg text-xl capitalize">
-          Welcome back, Dr. Olamide
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          `Welcome back, Dr. $
+          {userAndDoctor.firstName.charAt(0).toUpperCase() +
+            userAndDoctor.firstName.slice(1)}
+          `{/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={hand.src}
             alt="hand"

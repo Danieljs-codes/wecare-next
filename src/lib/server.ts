@@ -27,6 +27,7 @@ import {
   between,
   desc,
   eq,
+  gt,
   gte,
   isNull,
   like,
@@ -507,11 +508,99 @@ export async function getPatientNotificationsWithDoctorDetails(
 export async function getDoctorTotalEarnings(doctorId: string) {
   const result = await db
     .select({
-      totalEarnings: sql`SUM(${payments.amount}) - COALESCE(SUM(${payments.refundAmount}), 0)`.mapWith(Number),
+      totalEarnings:
+        sql`SUM(${payments.amount}) - COALESCE(SUM(${payments.refundAmount}), 0)`.mapWith(
+          Number
+        ),
     })
     .from(payments)
     .innerJoin(appointments, eq(appointments.id, payments.appointmentId))
     .where(eq(appointments.doctorId, doctorId));
 
   return result[0]?.totalEarnings ?? 0;
+}
+
+export async function getPatientTotalSpending(patientId: string) {
+  const result = await db
+    .select({
+      totalSpending: sql<number>`
+        COALESCE(SUM(${payments.amount} - COALESCE(${payments.refundAmount}, 0)), 0)
+      `.as('totalSpending'),
+    })
+    .from(patients)
+    .leftJoin(appointments, eq(appointments.patientId, patients.id))
+    .leftJoin(payments, eq(payments.appointmentId, appointments.id))
+    .where(eq(patients.id, patientId))
+    .execute();
+
+  return result[0]?.totalSpending ?? 0;
+}
+
+export async function getPatientAppointmentCounts(patientId: string) {
+  const currentDate = new Date().toISOString();
+
+  const result = await db
+    .select({
+      totalAppointments: sql<number>`
+        COUNT(CASE WHEN ${appointments.status} != 'cancelled' THEN 1 END)
+      `.as('totalAppointments'),
+      upcomingAppointments: sql<number>`
+        COUNT(CASE WHEN ${appointments.status} != 'cancelled' 
+                    AND ${appointments.appointmentStart} > ${currentDate} 
+                    THEN 1 END)
+      `.as('upcomingAppointments'),
+    })
+    .from(appointments)
+    .where(eq(appointments.patientId, patientId))
+    .execute();
+
+  return {
+    totalAppointments: result[0]?.totalAppointments ?? 0,
+    upcomingAppointments: result[0]?.upcomingAppointments ?? 0,
+  };
+}
+
+export async function getPatientCancelledAppointmentCount(patientId: string) {
+  const result = await db
+    .select({
+      patientId: appointments.patientId,
+      totalCancelledAppointments: sql<number>`count(*)`,
+    })
+    .from(appointments)
+    .where(
+      and(
+        eq(appointments.status, 'cancelled'),
+        eq(appointments.patientId, patientId)
+      )
+    )
+    .groupBy(appointments.patientId);
+
+  return result[0]?.totalCancelledAppointments ?? 0;
+}
+
+export async function getPatientUpcomingAppointmentCount(patientId: string) {
+  const result = await db
+    .select({
+      appointmentId: appointments.id,
+      appointmentStart: appointments.appointmentStart,
+      appointmentEnd: appointments.appointmentEnd,
+      doctorId: doctors.id,
+      doctorFirstName: users.firstName,
+      doctorLastName: users.lastName,
+      doctorSpecialty: doctors.specialization,
+    })
+    .from(appointments)
+    .innerJoin(doctors, eq(appointments.doctorId, doctors.id))
+    .innerJoin(users, eq(doctors.userId, users.id))
+    .where(
+      and(
+        eq(appointments.status, 'confirmed'),
+        gt(appointments.appointmentStart, new Date().toISOString()),
+        eq(appointments.patientId, patientId)
+      )
+    )
+    .orderBy(appointments.appointmentStart)
+    .limit(5);
+
+  return result;
 }
