@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -22,36 +18,14 @@
       }
     ],
     "paths": {
-      "@ui/*": [
-        "./src/components/ui/*"
-      ],
-      "@server/*": [
-        "./src/server/*"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@lib/*": [
-        "./src/lib/*"
-      ],
-      "@types/*": [
-        "./src/types/*"
-      ],
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "types": [
-      "@cloudflare/workers-types/2023-07-01"
-    ]
+      "@ui/*": ["./src/components/ui/*"],
+      "@server/*": ["./src/server/*"],
+      "@components/*": ["./src/components/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@types/*": ["./src/types/*"],
+      "@/*": ["./src/*"]
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
