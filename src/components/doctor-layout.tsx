@@ -25,7 +25,7 @@ import { Link } from '@ui/link';
 import { Logo } from './logo';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { NotificationsSheet } from './notifications-sheet';
 import { DoctorNotifications } from '@lib/types';

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { LiveKitRoom, VideoConference } from '@livekit/components-react';
 import '@livekit/components-styles';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 interface MediaRoomProps {

@@ -3,7 +3,7 @@
 import { Card } from '@ui/card';
 import { Table } from '@ui/table';
 import { EmptyState } from './empty-state';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import { Link } from 'next-view-transitions';
 interface AppointmentData {
   appointmentId: string;

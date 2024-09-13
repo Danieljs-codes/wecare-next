@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { TextField } from '@ui/text-field';
 import { DateField } from '@ui/date-field';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import {
   patientStep2Schema,
   Step2PatientFormData,

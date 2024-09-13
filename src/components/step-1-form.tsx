@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 import { useMutation } from '@tanstack/react-query';
 import { createStep1Registration } from '@/app/(auth)/sign-up/action';
 import { toast } from 'sonner';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import { formSchema } from '@/schemas/sign-in-schema';
 import { Tooltip } from '@ui/tooltip';
 import { IconEye, IconEyeOff } from 'justd-icons';

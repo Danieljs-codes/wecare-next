@@ -17,7 +17,7 @@ import { Modal } from '@ui/modal';
 import { Note } from '@ui/note';
 import { SubmitButton } from '@ui/submit-button';
 import { DateTime } from 'luxon';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';

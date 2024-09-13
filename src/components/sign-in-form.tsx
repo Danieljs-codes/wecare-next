@@ -15,7 +15,7 @@ import { signIn } from '@/app/(auth)/sign-in/action';
 import { useState } from 'react';
 import { Note } from '@ui/note';
 import { toast } from 'sonner';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import { Tooltip } from '@ui/tooltip';
 import { IconEyeOff, IconEye } from 'justd-icons';
 

@@ -14,7 +14,7 @@ import { Select } from '@ui/select';
 import { SubmitButton } from '@ui/submit-button';
 import { Textarea } from '@ui/textarea';
 import { TimeField } from '@ui/time-field';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';

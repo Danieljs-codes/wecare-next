@@ -20,7 +20,7 @@ import { SubmitButton } from '@ui/submit-button';
 import { TextField } from '@ui/text-field';
 import { Textarea } from '@ui/textarea';
 import { DateTime } from 'luxon';
-import { useTransitionRouter as useRouter } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
