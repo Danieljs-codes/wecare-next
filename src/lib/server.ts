@@ -283,7 +283,7 @@ export async function searchDoctors(params: SearchParams) {
   const conditions = [];
 
   if (specialization && specialization !== 'all') {
-    conditions.push(eq(doctors.specialization, specialization));
+    conditions.push(eq(doctors.specialization, specialization.toLowerCase()));
   }
 
   if (minExperience !== undefined && maxExperience !== undefined) {
@@ -343,7 +343,7 @@ export async function searchDoctors(params: SearchParams) {
 
   if (name) {
     conditions.push(
-      or(like(users.firstName, `%${name}%`), like(users.lastName, `%${name}%`))
+      or(like(users.firstName, `%${name}%`), like(users.lastName, `%${name.toLowerCase()}%`))
     );
   }
 
