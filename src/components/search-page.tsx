@@ -190,7 +190,7 @@ export function SearchPage({ doctors }: { doctors: Doctor[] }) {
                   <h3 className="font-semibold text-base capitalize">
                     Dr. {doctor.firstName} {doctor.lastName}
                   </h3>
-                  <p className="text-[13px] text-muted-fg">
+                  <p className="text-[13px] text-muted-fg capitalize">
                     {doctor.specialization}
                   </p>
                 </div>
