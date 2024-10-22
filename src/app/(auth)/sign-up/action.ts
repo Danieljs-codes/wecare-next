@@ -325,7 +325,7 @@ export async function createStep2PatientRegistration(
       genoType: rest.genoType,
       mobileNumber: rest.mobileNumber,
       occupation: rest.occupation.toLowerCase(),
-      timezone: rest.timezone,
+      timezone: rest.timezone || 'Africa/Lagos',
     }),
 
     db
