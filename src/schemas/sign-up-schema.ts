@@ -119,7 +119,7 @@ export const patientStep2Schema = z.object({
     .string()
     .min(1, { message: 'Address is required' })
     .max(255, { message: 'Address must be 255 characters or less' }),
-  timezone: z.string(),
+  timezone: z.string().optional(),
 });
 
 export type Step2PatientFormData = z.infer<typeof patientStep2Schema>;
