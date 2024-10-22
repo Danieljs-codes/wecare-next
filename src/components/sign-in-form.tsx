@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, UseFormSetValue } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signInSchema, SignInFormData } from '@/schemas/sign-in-schema';
 import { Logo } from '@components/logo';
@@ -47,6 +47,7 @@ export function SignInForm() {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -58,6 +59,11 @@ export function SignInForm() {
   const onSubmit = async (data: SignInFormData) => {
     mutate(data);
   };
+
+  function fillTestDetails({ setValue }: { setValue: UseFormSetValue<SignInFormData> }) {
+    setValue('email', 'sa@c.com')
+    setValue('password', 'sa@c.com')
+  }
 
   return (
     <div className="flex items-center justify-center min-h-svh px-4">
@@ -131,12 +137,12 @@ export function SignInForm() {
             />
           </div>
 
-          <div>
+          <div className="mt-6 space-y-4">
             <Button
               size="small"
               type="submit"
               className={cn(
-                'relative mt-6 w-full overflow-hidden',
+                'relative w-full overflow-hidden',
                 isSigningIn && 'pointer-events-none'
               )}
             >
@@ -152,6 +158,15 @@ export function SignInForm() {
               ) : (
                 'Sign in'
               )}
+            </Button>
+            <Button
+              size="small"
+              type="button"
+              appearance="outline"
+              className="w-full"
+              onPress={() => fillTestDetails({ setValue })}
+            >
+              Fill Test Details
             </Button>
           </div>
         </form>
