@@ -51,7 +51,7 @@ export const PatientDashboard = ({
           />
         </h1>
         <p className="mt-2 text-muted-fg text-xs md:text-sm">
-          Here is the latest update for your career. Check now
+          Here is the latest update. Check now
         </p>
       </div>
       <Grid
