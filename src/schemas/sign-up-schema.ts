@@ -112,8 +112,9 @@ export const patientStep2Schema = z.object({
     .min(1, { message: 'Occupation is required' })
     .max(100, { message: 'Occupation must be 100 characters or less' }),
   mobileNumber: z
-    .string()
-    .regex(/^\+?[0-9]{10,14}$/, { message: 'Invalid mobile number format' }),
+    .number({ invalid_type_error: 'Mobile number must be a number' })
+    .int({ message: 'Mobile number must be an integer' })
+    .positive({ message: 'Mobile number must be positive' }),
   address: z
     .string()
     .min(1, { message: 'Address is required' })
